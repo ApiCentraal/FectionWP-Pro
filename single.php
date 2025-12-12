@@ -1,0 +1,112 @@
+<?php
+/**
+ * Template voor het weergeven van een enkel bericht
+ * 
+ * Pipeline:
+ * Browser Request: /blog/artikel → single.php
+ *   → get_header() → Enkel artikel met volledige content → get_sidebar() → get_footer()
+ *
+ * @package FectionWP_Pro
+ */
+get_header();
+
+$sidebar_position = fwp_get_sidebar_position();
+$has_sidebar      = fwp_has_sidebar();
+$content_class    = $has_sidebar ? 'col-md-8' : 'col-md-12';
+?>
+
+<div class="row">
+    <?php if ($has_sidebar && $sidebar_position === 'left') : ?>
+    <aside class="col-md-4 order-md-1">
+        <?php get_sidebar(); ?>
+    </aside>
+    <?php endif; ?>
+
+    <div class="<?php echo esc_attr($content_class); ?> <?php echo $sidebar_position === 'left' ? 'order-md-2' : ''; ?>">
+        <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
+            
+            <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+                <header class="entry-header mb-4">
+                    <h1 class="entry-title"><?php the_title(); ?></h1>
+                    <p class="entry-meta text-muted">
+                        <time datetime="<?php echo esc_attr(get_the_date('c')); ?>">
+                            <?php echo get_the_date(); ?>
+                        </time>
+                        · <?php the_author(); ?>
+                    </p>
+                </header>
+                
+                <?php if (has_post_thumbnail()) : ?>
+                    <div class="entry-thumbnail mb-4">
+                        <?php the_post_thumbnail('large', array('class' => 'img-fluid rounded')); ?>
+                    </div>
+                <?php endif; ?>
+                
+                <div class="entry-content">
+                    <?php the_content(); ?>
+                </div>
+                
+                <?php
+                wp_link_pages(array(
+                    'before' => '<nav class="page-links mt-4">' . __('Pagina\'s:', 'fectionwp-pro'),
+                    'after'  => '</nav>',
+                ));
+                ?>
+                
+                <footer class="entry-footer mt-4 pt-3 border-top">
+                    <?php
+                    $categories = get_the_category_list(', ');
+                    if ($categories) {
+                        printf('<p><strong>%s:</strong> %s</p>', 
+                            esc_html__('Categorieën', 'fectionwp-pro'),
+                            $categories
+                        );
+                    }
+                    
+                    $tags = get_the_tag_list('', ', ');
+                    if ($tags) {
+                        printf('<p><strong>%s:</strong> %s</p>',
+                            esc_html__('Tags', 'fectionwp-pro'),
+                            $tags
+                        );
+                    }
+                    ?>
+                </footer>
+            </article>
+
+            <?php
+            // Author Box (alleen tonen als auteur een bio heeft)
+            get_template_part('template-parts/author-box');
+            ?>
+            
+            <nav class="post-navigation mt-4 pt-3 border-top">
+                <div class="row">
+                    <div class="col-6">
+                        <?php previous_post_link('%link', '&laquo; %title'); ?>
+                    </div>
+                    <div class="col-6 text-end">
+                        <?php next_post_link('%link', '%title &raquo;'); ?>
+                    </div>
+                </div>
+            </nav>
+            
+            <?php
+            if (comments_open() || get_comments_number()) {
+                comments_template();
+            }
+            
+            // Gerelateerde berichten
+            get_template_part('template-parts/related-posts');
+            ?>
+            
+        <?php endwhile; endif; ?>
+    </div>
+    
+    <?php if ($has_sidebar && $sidebar_position === 'right') : ?>
+    <aside class="col-md-4">
+        <?php get_sidebar(); ?>
+    </aside>
+    <?php endif; ?>
+</div>
+
+<?php get_footer(); ?>

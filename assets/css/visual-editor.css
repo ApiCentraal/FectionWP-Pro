@@ -1,0 +1,689 @@
+/**
+ * Visual Page Builder - Professional Layout
+ * Clean, balanced 3-column design
+ */
+
+/* ========================================
+   RESET & BASE
+   ======================================== */
+.fwp-visual-editor-body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    background: #0f0f0f;
+    color: #e0e0e0;
+    overflow: hidden;
+    height: 100vh;
+    line-height: 1.5;
+}
+
+.fwp-visual-editor-body * {
+    box-sizing: border-box;
+}
+
+/* ========================================
+   LAYOUT STRUCTURE
+   ======================================== */
+.fwp-ve-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.fwp-ve-main {
+    display: grid;
+    grid-template-columns: 260px 1fr 300px;
+    height: calc(100vh - 52px);
+    margin-top: 52px;
+}
+
+/* ========================================
+   TOP BAR
+   ======================================== */
+.fwp-ve-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #141414 100%);
+    border-bottom: 1px solid #2a2a2a;
+    padding: 0 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.fwp-ve-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.fwp-ve-topbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: #252525;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.fwp-ve-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fwp-ve-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: #252525;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #999;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.fwp-ve-back:hover {
+    background: #0073aa;
+    border-color: #0073aa;
+    color: #fff;
+}
+
+.fwp-ve-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fwp-ve-device {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    color: #666;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 16px;
+}
+
+.fwp-ve-device:hover {
+    color: #aaa;
+    background: rgba(255,255,255,0.05);
+}
+
+.fwp-ve-device.active {
+    background: #0073aa;
+    color: #fff;
+}
+
+/* Buttons */
+.fwp-ve-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.fwp-ve-btn-outline {
+    background: transparent;
+    border: 1px solid #444;
+    color: #aaa;
+}
+
+.fwp-ve-btn-outline:hover {
+    background: #252525;
+    border-color: #555;
+    color: #fff;
+}
+
+.fwp-ve-btn-primary {
+    background: linear-gradient(180deg, #0085ba 0%, #006799 100%);
+    color: #fff;
+    border: 1px solid #0073aa;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.fwp-ve-btn-primary:hover {
+    background: linear-gradient(180deg, #0095cc 0%, #0077aa 100%);
+    color: #fff;
+}
+
+/* ========================================
+   LEFT SIDEBAR - Section Library
+   ======================================== */
+.fwp-ve-sidebar {
+    background: #161616;
+    border-right: 1px solid #252525;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fwp-ve-sidebar-header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid #252525;
+    background: #1a1a1a;
+}
+
+.fwp-ve-sidebar-header h3 {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fwp-ve-sidebar-header h3 i {
+    color: #0073aa;
+}
+
+.fwp-ve-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+/* Categories */
+.fwp-ve-category {
+    margin-bottom: 6px;
+}
+
+.fwp-ve-category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #1e1e1e;
+    border: 1px solid #282828;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.fwp-ve-category-header:hover {
+    background: #252525;
+    color: #aaa;
+}
+
+.fwp-ve-category-header i:first-child {
+    font-size: 14px;
+    color: #0073aa;
+    width: 18px;
+    text-align: center;
+}
+
+.fwp-ve-category-header span {
+    flex: 1;
+}
+
+.fwp-ve-chevron {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.fwp-ve-category.open .fwp-ve-chevron {
+    transform: rotate(180deg);
+}
+
+.fwp-ve-category-items {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 8px 0;
+}
+
+.fwp-ve-category.open .fwp-ve-category-items {
+    display: grid;
+}
+
+/* Section Items - Draggable */
+.fwp-ve-section-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 6px;
+    background: #1e1e1e;
+    border: 1px solid #282828;
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.15s ease;
+    text-align: center;
+}
+
+.fwp-ve-section-item:hover {
+    background: #252525;
+    border-color: #0073aa;
+    transform: translateY(-1px);
+}
+
+.fwp-ve-section-item:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+.fwp-ve-section-item i {
+    font-size: 20px;
+    color: #0073aa;
+}
+
+.fwp-ve-section-item span {
+    font-size: 10px;
+    font-weight: 500;
+    color: #888;
+    line-height: 1.2;
+}
+
+/* ========================================
+   CENTER - Canvas
+   ======================================== */
+.fwp-ve-canvas-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #0a0a0a;
+    overflow: auto;
+    padding: 24px;
+}
+
+.fwp-ve-canvas {
+    width: 100%;
+    max-width: 960px;
+    min-height: calc(100vh - 100px);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 
+        0 0 0 1px rgba(255,255,255,0.05),
+        0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+    transition: max-width 0.3s ease;
+}
+
+/* Device Preview Sizes */
+.fwp-ve-canvas.tablet {
+    max-width: 768px;
+}
+
+.fwp-ve-canvas.mobile {
+    max-width: 375px;
+}
+
+/* Empty State */
+.fwp-ve-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    padding: 60px 40px;
+    text-align: center;
+    color: #999;
+}
+
+.fwp-ve-empty i {
+    font-size: 64px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.fwp-ve-empty p {
+    margin: 0;
+    font-size: 16px;
+    color: #888;
+}
+
+/* Canvas Sections */
+.fwp-ve-canvas-section {
+    position: relative;
+    margin: 12px;
+    background: #fafafa;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.15s ease;
+}
+
+.fwp-ve-canvas-section:hover {
+    border-color: #0073aa;
+}
+
+.fwp-ve-canvas-section.active {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0,115,170,0.15);
+}
+
+.fwp-ve-canvas-section.dragging {
+    opacity: 0.5;
+}
+
+/* Section Header */
+.fwp-ve-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.fwp-ve-section-drag {
+    cursor: grab;
+    color: #bbb;
+    padding: 4px;
+    transition: color 0.15s;
+}
+
+.fwp-ve-section-drag:hover {
+    color: #666;
+}
+
+.fwp-ve-section-drag:active {
+    cursor: grabbing;
+}
+
+.fwp-ve-section-label {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    text-transform: capitalize;
+}
+
+.fwp-ve-section-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.fwp-ve-canvas-section:hover .fwp-ve-section-actions {
+    opacity: 1;
+}
+
+.fwp-ve-section-actions button {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s;
+}
+
+.fwp-ve-section-actions button:hover {
+    background: #0073aa;
+    color: #fff;
+}
+
+.fwp-ve-section-delete:hover {
+    background: #dc3545 !important;
+}
+
+/* Section Preview */
+.fwp-ve-section-preview {
+    padding: 30px;
+    background: #fafafa;
+}
+
+.fwp-ve-section-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 30px;
+    background: #f5f5f5;
+    border: 2px dashed #ddd;
+    border-radius: 6px;
+    color: #999;
+}
+
+.fwp-ve-section-placeholder i {
+    font-size: 28px;
+    color: #ccc;
+}
+
+.fwp-ve-section-placeholder span {
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* Drop Placeholder */
+.ui-sortable-placeholder {
+    height: 80px;
+    background: rgba(0,115,170,0.08);
+    border: 2px dashed #0073aa;
+    border-radius: 8px;
+    margin: 12px;
+    visibility: visible !important;
+}
+
+/* ========================================
+   RIGHT SIDEBAR - Settings Panel
+   ======================================== */
+.fwp-ve-settings {
+    background: #161616;
+    border-left: 1px solid #252525;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fwp-ve-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid #252525;
+    background: #1a1a1a;
+}
+
+.fwp-ve-settings-header h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #aaa;
+}
+
+.fwp-ve-settings-close {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: #252525;
+    border-radius: 6px;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fwp-ve-settings-close:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+.fwp-ve-settings-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.fwp-ve-settings-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #555;
+    text-align: center;
+    font-size: 13px;
+}
+
+/* Form Fields */
+.fwp-ve-field {
+    margin-bottom: 18px;
+}
+
+.fwp-ve-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.fwp-ve-input,
+.fwp-ve-textarea,
+.fwp-ve-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #1e1e1e;
+    color: #ddd;
+    font-size: 13px;
+    transition: all 0.15s;
+}
+
+.fwp-ve-input:focus,
+.fwp-ve-textarea:focus,
+.fwp-ve-select:focus {
+    outline: none;
+    border-color: #0073aa;
+    background: #252525;
+}
+
+.fwp-ve-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.fwp-ve-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+/* ========================================
+   NOTIFICATIONS
+   ======================================== */
+.fwp-ve-notification {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    padding: 12px 24px;
+    background: linear-gradient(180deg, #46b450 0%, #3a9a42 100%);
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 13px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10000;
+}
+
+.fwp-ve-notification.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+.fwp-ve-notification.error {
+    background: linear-gradient(180deg, #dc3545 0%, #c82333 100%);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1200px) {
+    .fwp-ve-main {
+        grid-template-columns: 220px 1fr 280px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .fwp-ve-main {
+        grid-template-columns: 200px 1fr 0;
+    }
+    
+    .fwp-ve-settings {
+        position: fixed;
+        right: 0;
+        top: 52px;
+        bottom: 0;
+        width: 300px;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 100;
+    }
+    
+    .fwp-ve-settings.active {
+        transform: translateX(0);
+    }
+}
