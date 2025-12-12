@@ -38,7 +38,7 @@ Zorg dat deze plugins geïnstalleerd en geactiveerd zijn voor volledige function
  
  `FectionWP-Visual-Builder` (https://github.com/ApiCentraal/FectionWP-Visual-Builder), 
  
- `FectionWP-Blocks`.
+ `FectionWP-Blocks` (https://github.com/ApiCentraal/FectionWP-Blocks)
 
 Voor ontwikkel-workflow lokaal:
 
@@ -73,6 +73,8 @@ De pipeline moet ten minste code-linting en theme-check uitvoeren vóór merges 
 
 - Gebruik de `FectionWP-Visual-Builder` tijdens het opzetten van pagina's en templates.
 - Gebruik example templates in `template-parts/examples/` als uitgangspunt.
+
+
 
 ## Licentie & bijdrages
 
