@@ -12,11 +12,11 @@ FectionWP Pro is een professioneel WordPress-thema gericht op flexibele sites me
 
 ## Vereiste plugins
 
-Het thema dient gebruikt te worden in combinatie met de volgende plugins:
+Het thema dient gebruikt te worden in combinatie met de volgende premium plugins:
 
 - FectionWP-Booking
 - FectionWP-Visual-Builder
-- FectionWP-Blocks
+- FectionWP-Blocks 
 
 Zorg dat deze plugins geïnstalleerd en geactiveerd zijn voor volledige functionaliteit.
 
@@ -32,7 +32,7 @@ Zorg dat deze plugins geïnstalleerd en geactiveerd zijn voor volledige function
 
 1. Kopieer de map naar de WordPress thema-directory (`wp-content/themes/FectionWP-Pro`) of installeer als ZIP.
 2. Activeer het thema via het WordPress-dashboard.
-3. Installeer en activeer de vereiste plugins: `FectionWP-Booking`, `FectionWP-Visual-Builder`, `FectionWP-Blocks`.
+3. Installeer en activeer de vereiste plugins: `FectionWP-Booking` [https://github.com/ApiCentraal/FectionWP-Booking], `FectionWP-Visual-Builder` [https://github.com/ApiCentraal/FectionWP-Visual-Builder], `FectionWP-Blocks`.
 
 Voor ontwikkel-workflow lokaal:
 
@@ -71,7 +71,3 @@ De pipeline moet ten minste code-linting en theme-check uitvoeren vóór merges 
 ## Licentie & bijdrages
 
 Controleer `style.css` header voor licentie-informatie. Voor bijdragen: open een pull request tegen `main`.
-
----
-
-Als je wilt, voeg ik een voorbeeld `.github/workflows/ci.yml` toe of maak ik een release op GitHub.
