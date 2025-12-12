@@ -32,7 +32,7 @@ Zorg dat deze plugins geïnstalleerd en geactiveerd zijn voor volledige function
 
 1. Kopieer de map naar de WordPress thema-directory (`wp-content/themes/FectionWP-Pro`) of installeer als ZIP.
 2. Activeer het thema via het WordPress-dashboard.
-3. Installeer en activeer de vereiste plugins: `FectionWP-Booking` [https://github.com/ApiCentraal/FectionWP-Booking], `FectionWP-Visual-Builder` [https://github.com/ApiCentraal/FectionWP-Visual-Builder], `FectionWP-Blocks`.
+3. Installeer en activeer de vereiste plugins: `FectionWP-Booking` (https://github.com/ApiCentraal/FectionWP-Booking), `FectionWP-Visual-Builder` (https://github.com/ApiCentraal/FectionWP-Visual-Builder), `FectionWP-Blocks`.
 
 Voor ontwikkel-workflow lokaal:
 
