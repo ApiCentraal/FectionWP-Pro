@@ -24,6 +24,15 @@ FectionWP Pro is een flexibel, enterprise-ready WordPress-thema gericht op:
 - Herbruikbare Gutenberg-blocks en patterns
 - Een geïntegreerd boekingssysteem
 
+## Example Pages & Block Patterns
+
+- De theme includes a set of example layouts under `template-parts/examples/`.
+- Quick-create pages: go to Appearance → Example Pages, preview an example and click "Create Page" to add a new Page with that example inserted.
+	- You can choose a page template (from `page-*.php` files), set the created page as the static front page, and optionally add the page to an "Example Menu".
+- Gutenberg users: examples are also registered as block patterns (FectionWP Examples category). Insert via the block inserter by searching "Example: ...".
+
+This system uses the `[fwp_example name="example-slug"]` shortcode under the hood; created pages contain that shortcode so you can edit or replace the example content after creation.
+
 Het thema levert de front-end templates, styling en integraties; specifieke functionaliteit wordt geleverd door aanvullende FectionWP-plugins (naam en versiebeheer via releases van de respectievelijke repos).
 
 ## Vereiste plugins
