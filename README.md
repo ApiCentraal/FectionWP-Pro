@@ -9,73 +9,123 @@ Author: ApiCentraal <help@apicentraal.nl>
 ## Doel
 
 FectionWP Pro is een professioneel WordPress-thema gericht op flexibele sites met een visuele builder, blocks en boekingsfunctionaliteit. Het thema is bedoeld om samen te werken met de bijbehorende plugins om volledige functionaliteit te bieden.
+# FectionWP Pro
+
+Dit repository bevat het FectionWP Pro WordPress-thema, ontwikkeld en onderhouden door ApiCentraal.
+
+Repository: https://github.com/ApiCentraal/FectionWP-Pro
+
+Author: ApiCentraal <help@apicentraal.nl>
+
+## Doel
+
+FectionWP Pro is een flexibel, enterprise-ready WordPress-thema gericht op:
+- Visuele sitebouw met een krachtige page-builder
+- Herbruikbare Gutenberg-blocks en patterns
+- Een geïntegreerd boekingssysteem
+
+Het thema levert de front-end templates, styling en integraties; specifieke functionaliteit wordt geleverd door aanvullende FectionWP-plugins (naam en versiebeheer via releases van de respectievelijke repos).
 
 ## Vereiste plugins
 
-Het thema dient gebruikt te worden in combinatie met de volgende premium plugins:
+Dit thema is bedoeld om gebruikt te worden in combinatie met de volgende plugins:
 
-- FectionWP-Booking
-- FectionWP-Visual-Builder
-- FectionWP-Blocks 
+- FectionWP-Booking — biedt boekings- en afspraakfunctionaliteit
+- FectionWP-Visual-Builder — visuele page-builder en template-editor
+- FectionWP-Blocks — extra Gutenberg blocks en patterns
 
-Zorg dat deze plugins geïnstalleerd en geactiveerd zijn voor volledige functionaliteit.
+Zorg dat deze plugins geïnstalleerd en geactiveerd zijn voor volledige functionaliteit. Versies en installatie-instructies vind je in de repositories van de respectievelijke plugins.
 
 ## Hoofdfuncties
 
-- Volledige compatibiliteit met de FectionWP visual builder en block-systeem
-- Integratie met een boekingssysteem via `FectionWP-Booking`
-- Aangepaste Gutenberg blocks en block patterns
-- WooCommerce-styling en -ondersteuning
-- Voorbeeldtemplates en 'starter' content
+- Naadloze integratie met FectionWP-Visual-Builder en FectionWP-Blocks
+- Boeking- en afspraakbeheer via FectionWP-Booking
+- Aangepaste thema-onderdelen en block-templates in `template-parts/`
+- WooCommerce styling en compatibiliteit
+- Meertalige ondersteuning via `.pot` in `languages/`
 
-## Installatie
+## Installatie (kort)
 
-1. Kopieer de map naar de WordPress thema-directory (`wp-content/themes/FectionWP-Pro`) of installeer als ZIP.
+1. Plaats de map `FectionWP-Pro` in `wp-content/themes/` of installeer als ZIP via het dashboard.
 2. Activeer het thema via het WordPress-dashboard.
 3. Installeer en activeer de vereiste plugins:
- 
- `FectionWP-Booking` (https://github.com/ApiCentraal/FectionWP-Booking), 
- 
- `FectionWP-Visual-Builder` (https://github.com/ApiCentraal/FectionWP-Visual-Builder), 
- 
- `FectionWP-Blocks` (https://github.com/ApiCentraal/FectionWP-Blocks)
+	 - `FectionWP-Booking`
+	 - `FectionWP-Visual-Builder`
+	 - `FectionWP-Blocks`
 
-Voor ontwikkel-workflow lokaal:
+Voor ontwikkelworkflows lokaal:
 
 ```bash
-# in project root
-# composer install (indien van toepassing)
-# npm install (indien van toepassing)
+# vanuit project root
+# composer install    # alleen indien composer.json aanwezig is
+# npm install         # alleen indien package.json aanwezig is
 ```
 
 ## Folderstructuur (hoog niveau)
 
-- `assets/` — CSS, JS en images voor frontend en editor
-- `inc/` — PHP helpers, widget- en plugin-integraties
-- `template-parts/` — herbruikbare template-onderdelen en block-templates
-- `languages/` — vertalingsbestanden
-- `style.css` — thema header en basisstijl
-- `functions.php` — thema bootstrap en hooks
+```
+FectionWP-Pro/
+├─ assets/                 # CSS, JS, afbeeldingen
+│  ├─ css/
+│  └─ js/
+├─ inc/                    # PHP helpers, integraties, widgets
+├─ template-parts/         # herbruikbare template-onderdelen & blocks
+│  └─ examples/            # voorbeeldpagina's en starter content
+├─ languages/              # .pot en vertalingsbestanden
+├─ style.css               # thema header + basis CSS
+├─ functions.php           # thema bootstrap en registratie
+└─ theme.json              # full-site editing instellingen (indien gebruikt)
+```
 
-Specifieke bestanden en mappen zijn aanwezig voor voorbeeldpagina's en block-voorbeelden.
+Let op: de map `template-parts/examples/` bevat meerdere voorbeeld-templates die als uitgangspunt dienen bij site-setup.
 
 ## CI / Pipeline (aanbeveling)
 
-Voorgestelde GitHub Actions-workflow (plaats in `.github/workflows/ci.yml`):
+Plaats een simpele CI in `.github/workflows/ci.yml` met ten minste:
 
-- PHP lint (`php -l`)
-- WordPress Theme Check (via `wp-cli` of `phpcs` + WordPress coding standards)
-- Optioneel: PHPUnit tests, JS lint/build (`npm run build`)
+- PHP linting
+- Theme check (WordPress Theme Check of `phpcs` met WP-standaarden)
+- (Optioneel) JS lint/build en unit tests
 
-De pipeline moet ten minste code-linting en theme-check uitvoeren vóór merges naar `main`.
+Voorbeeld workflow (vereenvoudigd):
+
+```yaml
+name: CI
+on: [push, pull_request]
+jobs:
+	checks:
+		runs-on: ubuntu-latest
+		steps:
+			- uses: actions/checkout@v4
+			- name: Set up PHP
+				uses: shivammathur/setup-php@v2
+				with:
+					php-version: '8.1'
+			- name: PHP lint
+				run: find . -name "*.php" -print0 | xargs -0 -n1 php -l
+			- name: Install Composer deps
+				run: composer install --no-interaction --no-progress || true
+			- name: Run theme check (optional)
+				run: vendor/bin/phpcs --standard=WordPress --extensions=php || true
+
+```
+
+De exacte pipeline kun je uitbreiden met `wp-cli` checks of `theme-check` via WP-CLI voor strengere validatie.
 
 ## Development tips
 
-- Gebruik de `FectionWP-Visual-Builder` tijdens het opzetten van pagina's en templates.
-- Gebruik example templates in `template-parts/examples/` als uitgangspunt.
+- Gebruik `FectionWP-Visual-Builder` om templates op te bouwen en `FectionWP-Blocks` om content-booster blocks te gebruiken.
+- Raadpleeg `template-parts/examples/` voor herbruikbare patronen en componenten.
+- Plaats project-specifieke assets of builds onder `assets/` en registreer ze in `functions.php`.
 
+## Releases & tagging
 
+Gebruik semver voor releases (bijv. `v0.1.0`). Maak op GitHub een release met changelog wanneer je breaking changes of features toevoegt.
 
-## Licentie & bijdrages
+## Support & contact
 
-Controleer `style.css` header voor licentie-informatie. Voor bijdragen: open een pull request tegen `main`.
+Voor vragen of ondersteuning: help@apicentraal.nl
+
+## Licentie
+
+Controleer de header in `style.css` voor licentie-informatie. Voorbijdragen via pull requests tegen `main`.
