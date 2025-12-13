@@ -9,16 +9,31 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [ '8.1', '8.2' ]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, xml
 
       - name: PHP version
         run: php -v
+
+      - name: Cache Composer vendor
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}-php-${{ matrix.php-version }}
+          restore-keys: composer-
+
+      - name: Install Composer deps
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
 
       - name: PHP lint
         run: |
@@ -31,11 +46,6 @@ jobs:
           echo "Running php -l on PHP files..."
           echo "${files}" | xargs -n1 -I{} php -l {}
 
-      - name: Install PHPCS & WPCS (dev)
-        run: |
-          composer require --no-interaction --no-progress --dev squizlabs/php_codesniffer:^4.0 wp-coding-standards/wpcs:^2.3 || true
-          vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs || true
-
       - name: Run PHPCS (WordPress standard)
         run: |
           if [ -f vendor/bin/phpcs ]; then
@@ -45,24 +55,27 @@ jobs:
             echo "phpcs not available, skipping"
           fi
 
-      - name: Install Theme Check (optional)
-        run: |
-          # Install official Theme Check if available via Composer (maintainers can add this to composer.dev)
-          composer require --no-interaction --no-progress --dev wp-theme-check/wp-theme-check || true
-
-      - name: Run Theme Check (if installed)
+      - name: Run Theme Check (required)
         run: |
           if [ -f vendor/bin/theme-check ]; then
             echo "Running Theme Check..."
-            vendor/bin/theme-check --severity=warning . || true
+            vendor/bin/theme-check --severity=warning .
           else
-            echo "theme-check not installed via composer, skipping. To enable, add wp-theme-check/wp-theme-check as a dev dependency."
+            echo "theme-check not installed. Add 'wp-theme-check/wp-theme-check' to require-dev in composer.json to enable strict theme checks."
+            exit 1
           fi
 
       - name: Setup Node (optional)
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: Cache NPM
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: npm-
 
       - name: Install JS deps & build (if present)
         run: |
