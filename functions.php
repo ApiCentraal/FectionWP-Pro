@@ -400,6 +400,48 @@ function fwp_use_classic_editor_for_templates($use_block_editor, $post) {
 add_filter('use_block_editor_for_post', 'fwp_use_classic_editor_for_templates', 10, 2);
 
 /**
+ * Create a Welcome page and set it as front page on theme activation.
+ * This runs once when the theme is activated to give users a helpful starting point.
+ */
+function fwp_create_welcome_page_on_activation() {
+    // Only run in admin and when function exists
+    if ( ! is_admin() ) {
+        return;
+    }
+
+    $title = 'Welcome';
+    // Check if a page with this title already exists
+    $existing = get_page_by_title( $title, OBJECT, 'page' );
+
+    if ( $existing ) {
+        $page_id = $existing->ID;
+    } else {
+        // Create the welcome page using the welcome template
+        $content = "<h2>Welcome to FectionWP Pro</h2><p>Use the Welcome template to get started.</p>";
+        $page = array(
+            'post_title'   => wp_strip_all_tags( $title ),
+            'post_content' => $content,
+            'post_status'  => 'publish',
+            'post_type'    => 'page',
+        );
+
+        $page_id = wp_insert_post( $page );
+
+        if ( ! is_wp_error( $page_id ) && $page_id ) {
+            // Assign our welcome page template if available
+            update_post_meta( $page_id, '_wp_page_template', 'page-welcome.php' );
+        }
+    }
+
+    if ( $page_id ) {
+        // Set as static front page
+        update_option( 'show_on_front', 'page' );
+        update_option( 'page_on_front', intval( $page_id ) );
+    }
+}
+add_action( 'after_switch_theme', 'fwp_create_welcome_page_on_activation' );
+
+/**
  * Voeg een "Edit with Classic Editor" link toe in de admin bar
  */
 function fwp_add_classic_editor_link($wp_admin_bar) {

@@ -5,10 +5,20 @@ Author:      FectionLabs
 Author URI:  https://fectionlabs.com
 Description: Premium WordPress theme with Bootstrap 5.3, modular blocks, shortcodes, WooCommerce, Jetpack & CF7 support.
 Version:     1.0.0
+Requires at least: 6.0
+Tested up to: 6.4
+Requires PHP: 7.4
 License:     GNU General Public License v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: fectionwp-pro
 Tags:        responsive, bootstrap, premium, accessibility, woocommerce, gutenberg, blocks
+
+Theme Details:
+ - Built with Bootstrap 5.3 and modern Gutenberg blocks
+ - Includes templates for landing pages, full width, hero sections and WooCommerce
+ - Required plugins: FectionWP-Booking, FectionWP-Visual-Builder, FectionWP-Blocks
+ - Dev tooling: PHPCS (WPCS), Theme Check (composer dev dependencies)
+
 */
 
 /* Custom styles worden geladen via assets/css/custom.css */
