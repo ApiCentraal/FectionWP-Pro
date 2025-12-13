@@ -36,6 +36,23 @@ function fwp_get_example_names() {
 }
 
 /**
+ * Get available page templates (filenames) in theme starting with 'page-'
+ *
+ * @return array
+ */
+function fwp_get_page_templates() {
+    $templates = array();
+    $dir = get_template_directory();
+    $files = scandir( $dir );
+    foreach ( $files as $f ) {
+        if ( 0 === strpos( $f, 'page-' ) && substr( $f, -4 ) === '.php' ) {
+            $templates[] = $f;
+        }
+    }
+    return $templates;
+}
+
+/**
  * Shortcode to render an example template-part safely.
  * Usage: [fwp_example name="example-heroes"]
  */
