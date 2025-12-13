@@ -129,3 +129,23 @@ Voor vragen of ondersteuning: help@apicentraal.nl
 ## Licentie
 
 Controleer de header in `style.css` voor licentie-informatie. Voorbijdragen via pull requests tegen `main`.
+
+## Local Docker development
+
+This repository can be developed together with a local WordPress compose setup. A convenience `docker-compose.yml` and `.env.example` live in the sibling folder `../FectionWP` for local theme testing.
+
+Quick start (from `/home/x/Applicaties - FectionLabs/FectionWP`):
+
+```bash
+# copy example env and edit secrets
+cp .env.example .env
+# start containers
+docker compose up -d
+# open WordPress at http://localhost:8000 and phpMyAdmin at http://localhost:8080
+```
+
+Notes:
+- Do NOT commit a real `.env` with secrets. Use `.env.example` as the template.
+- `docker-compose.yml` reads values from `.env` (`MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, etc.).
+- If you want the compose file inside this repo, copy `../FectionWP/docker-compose.yml` here and adapt paths.
+
