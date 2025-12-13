@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: PHP version
+        run: php -v
+
+      - name: PHP lint
+        run: |
+          set -e
+          files=$(git ls-files '*.php' || true)
+          if [ -z "${files}" ]; then
+            echo "No PHP files to lint"
+            exit 0
+          fi
+          echo "Running php -l on PHP files..."
+          echo "${files}" | xargs -n1 -I{} php -l {}
+
+      - name: Install PHPCS & WPCS (dev)
+        run: |
+          composer require --no-interaction --no-progress --dev squizlabs/php_codesniffer:^4.0 wp-coding-standards/wpcs:^2.3 || true
+          vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs || true
+
+      - name: Run PHPCS (WordPress standard)
+        run: |
+          if [ -f vendor/bin/phpcs ]; then
+            echo "Running phpcs (WordPress) checks..."
+            vendor/bin/phpcs --standard=WordPress --extensions=php -n .
+          else
+            echo "phpcs not available, skipping"
+          fi
+
+      - name: Setup Node (optional)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install JS deps & build (if present)
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            if npm run | sed -n '2,200p' | grep -q "build"; then
+              npm run build
+            else
+              echo "No build script defined, skipping build"
+            fi
+          else
+            echo "No package.json, skipping JS steps"
+          fi
