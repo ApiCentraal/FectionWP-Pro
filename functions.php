@@ -42,6 +42,9 @@ require_once get_template_directory() . '/inc/plugin-activation.php';
 // Block patterns voor Bootstrap examples
 require_once get_template_directory() . '/inc/patterns-examples.php';
 
+// Examples helper: shortcode + admin UI to create example pages
+require_once get_template_directory() . '/inc/examples.php';
+
 /**
  * OPMERKING: Visual Builder en Blocks zijn nu aparte plugins:
  * - FectionWP Visual Builder (inc/visual-editor.php -> plugin)
