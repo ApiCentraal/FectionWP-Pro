@@ -1,0 +1,23 @@
+/*
+  Overrides for FectionWP-Booking public CSS.
+
+  Context:
+  - Plugin injecteert inline CSS vars op `:root` incl. `font-family: ...`.
+  - Dit bestand wordt (via child functions.php) pas geladen als `[pbp_booking_form]` aanwezig is,
+    en met dependency op `pbp-public-css`, zodat het na plugin CSS komt.
+*/
+
+:root {
+  --pbp-primary: var(--bs-primary);
+  --pbp-primary-dark: var(--bs-primary);
+  --pbp-radius: var(--bs-border-radius);
+}
+
+/* Voorkom dat plugin `:root { font-family: ... }` de hele site “overneemt” */
+body {
+  font-family: var(--tffp-font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--tffp-font-heading);
+}

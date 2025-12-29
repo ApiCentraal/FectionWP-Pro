@@ -1,0 +1,19 @@
+/*
+Theme Name: FectionWP Pro – TFFP
+Theme URI:  https://fectionlabs.com/fectionwp-pro
+Author:      FectionLabs
+Author URI:  https://fectionlabs.com
+Description: Child theme voor The Funky Face Paint migratie (Bootstrap tokens + Bootstrap markup refactor).
+Version:     1.0.0
+Requires at least: 6.0
+Tested up to: 6.4
+Requires PHP: 8.1
+Template:    fectionwp-pro
+Text Domain: fectionwp-pro-tffp
+*/
+
+/*
+Let op:
+- `Template:` moet overeenkomen met de **mapnaam** van de parent theme in `wp-content/themes/`.
+- FectionWP Pro enqueued `get_stylesheet_uri()` als `fwp-style`; bij actief child theme is dat dit bestand.
+*/

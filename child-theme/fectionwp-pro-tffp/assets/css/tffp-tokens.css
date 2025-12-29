@@ -1,0 +1,85 @@
+/*
+  TFFP design tokens → Bootstrap variable overrides (Optie A)
+
+  Bron (React): the-funky-face-paint/src/index.css
+  - kleuren via OKLCH tokens
+  - fonts: Fredoka (headings) + Inter (body)
+  - radius: 1rem
+
+  NB:
+  - We gebruiken `color-mix()` om Bootstrap subtle/emphasis variabelen te sturen zonder `--bs-*-rgb` te hoeven berekenen.
+*/
+
+:root {
+  /* --- TFFP tokens (1-op-1 uit React) --- */
+  --tffp-background: oklch(0.995 0.01 90);
+  --tffp-foreground: oklch(0.25 0.05 290);
+
+  --tffp-card: oklch(1 0 0);
+  --tffp-card-foreground: oklch(0.2 0.02 290);
+
+  --tffp-primary: oklch(0.65 0.25 340);
+  --tffp-primary-foreground: oklch(1 0 0);
+
+  --tffp-secondary: oklch(0.6 0.2 290);
+  --tffp-secondary-foreground: oklch(1 0 0);
+
+  --tffp-muted: oklch(0.96 0.01 290);
+  --tffp-muted-foreground: oklch(0.5 0.03 290);
+
+  --tffp-accent: oklch(0.72 0.20 45);
+  --tffp-accent-foreground: oklch(1 0 0);
+
+  --tffp-border: oklch(0.9 0.02 290);
+
+  --tffp-radius: 1rem;
+  --tffp-font-heading: 'Fredoka', sans-serif;
+  --tffp-font-body: 'Inter', sans-serif;
+
+  /* --- Bootstrap core mappings --- */
+  --bs-body-bg: var(--tffp-background);
+  --bs-body-color: var(--tffp-foreground);
+  --bs-border-color: var(--tffp-border);
+
+  --bs-primary: var(--tffp-primary);
+  --bs-secondary: var(--tffp-secondary);
+  --bs-warning: var(--tffp-accent);
+
+  --bs-link-color: var(--tffp-primary);
+  --bs-link-hover-color: color-mix(in oklch, var(--tffp-primary) 80%, black);
+
+  --bs-border-radius: var(--tffp-radius);
+  --bs-border-radius-sm: calc(var(--tffp-radius) * 0.75);
+  --bs-border-radius-lg: calc(var(--tffp-radius) * 1.25);
+
+  --bs-font-sans-serif: var(--tffp-font-body);
+}
+
+/* Bootstrap emphasis/subtle vars (primary) */
+:root {
+  --bs-primary-text-emphasis: color-mix(in oklch, var(--tffp-primary) 45%, black);
+  --bs-primary-bg-subtle: color-mix(in oklch, var(--tffp-primary) 14%, white);
+  --bs-primary-border-subtle: color-mix(in oklch, var(--tffp-primary) 28%, white);
+
+  --bs-secondary-text-emphasis: color-mix(in oklch, var(--tffp-secondary) 45%, black);
+  --bs-secondary-bg-subtle: color-mix(in oklch, var(--tffp-secondary) 14%, white);
+  --bs-secondary-border-subtle: color-mix(in oklch, var(--tffp-secondary) 28%, white);
+
+  --bs-warning-text-emphasis: color-mix(in oklch, var(--tffp-accent) 45%, black);
+  --bs-warning-bg-subtle: color-mix(in oklch, var(--tffp-accent) 16%, white);
+  --bs-warning-border-subtle: color-mix(in oklch, var(--tffp-accent) 30%, white);
+}
+
+body {
+  font-family: var(--tffp-font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--tffp-font-heading);
+}
+
+/* Optional helper background styles you can reuse in template-parts */
+.tffp-bg-muted {
+  background-color: var(--tffp-muted);
+  color: var(--tffp-muted-foreground);
+}
