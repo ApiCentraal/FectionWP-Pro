@@ -38,6 +38,8 @@ Zie ook:
   - [ ] `/galerij/` (Template: **Galerij (TFFP)**)
   - [ ] `/cadeaubon/` (Template: **Cadeaubon (TFFP)**)
   - [ ] `/contact/` (Template: **Contact (TFFP)**)
+  - [ ] `/booking-confirmation/` (Betalings-succes pagina; template: `page-booking-confirmation.php`)
+  - [ ] `/booking-cancelled/` (Betalings-annulering pagina; template: `page-booking-cancelled.php`)
 - [ ] Pagina’s zijn **Published** (niet Draft/Private).
 - [ ] Front page staat goed: **Instellingen → Lezen → statische homepage** (Home pagina geselecteerd).
 - [ ] Per pagina is het juiste template gekozen (Pagina bewerken → Template).

@@ -12,6 +12,9 @@ yarn-error.log
 thumbs.db
 __pycache__/
 
+# Release artifacts
+dist/
+
 # WordPress
 wp-config.php
 wp-content/uploads/
