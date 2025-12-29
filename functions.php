@@ -224,8 +224,130 @@ if (!function_exists('fwp_enqueue_assets')) {
             filemtime(get_template_directory() . '/assets/js/theme.js'),
             true // In footer laden
         );
+
+        // ---------------------------------------------------------------------
+        // Typography: dynamic font loading + CSS variables
+        // ---------------------------------------------------------------------
+        if (function_exists('fwp_google_families_in_use')) {
+            $families = fwp_google_families_in_use();
+            if (!empty($families)) {
+                $queries = array();
+                foreach ($families as $family) {
+                    $q = function_exists('fwp_google_font_query_for_family') ? fwp_google_font_query_for_family($family) : '';
+                    if ($q) {
+                        $queries[] = $q;
+                    }
+                }
+                if (!empty($queries)) {
+                    $google_url = 'https://fonts.googleapis.com/css2?' . implode('&', array_unique($queries)) . '&display=swap';
+                    wp_enqueue_style('fwp-google-fonts', $google_url, array(), null);
+                }
+            }
+        }
+
+        if (function_exists('fwp_uses_external_fonts') && fwp_uses_external_fonts()) {
+            $external_url = esc_url_raw((string) get_theme_mod('fwp_custom_font_css_url', ''));
+            if (!empty($external_url)) {
+                wp_enqueue_style('fwp-external-fonts', $external_url, array(), null);
+            }
+        }
+
+        if (function_exists('fwp_build_typography_css_vars')) {
+            $css = fwp_build_typography_css_vars();
+            if ($css) {
+                // Attach late in the CSS chain so Customizer choices win.
+                wp_add_inline_style('fwp-custom', $css);
+            }
+        }
     }
     add_action('wp_enqueue_scripts', 'fwp_enqueue_assets');
+}
+
+/**
+ * Build CSS variables that apply font selections (global + header/content/footer).
+ */
+function fwp_build_typography_css_vars() {
+    if (!function_exists('fwp_font_stack_from_choice')) {
+        return '';
+    }
+
+    $global_body_choice = (string) get_theme_mod('fwp_font_body', '');
+    $global_head_choice = (string) get_theme_mod('fwp_font_headings', '');
+    $sitetitle_choice   = (string) get_theme_mod('fwp_font_sitetitle', '');
+
+    $header_body_choice = (string) get_theme_mod('fwp_font_header_body', '');
+    $header_head_choice = (string) get_theme_mod('fwp_font_header_headings', '');
+
+    $content_body_choice = (string) get_theme_mod('fwp_font_content_body', '');
+    $content_head_choice = (string) get_theme_mod('fwp_font_content_headings', '');
+
+    $footer_body_choice = (string) get_theme_mod('fwp_font_footer_body', '');
+    $footer_head_choice = (string) get_theme_mod('fwp_font_footer_headings', '');
+
+    $global_body_stack = fwp_font_stack_from_choice($global_body_choice, 'body');
+    $global_head_stack = fwp_font_stack_from_choice($global_head_choice, 'headings');
+    $sitetitle_stack   = fwp_font_stack_from_choice($sitetitle_choice, 'headings');
+
+    // Empty section choice = inherit global.
+    $header_body_stack = fwp_font_stack_from_choice($header_body_choice, 'body');
+    $header_head_stack = fwp_font_stack_from_choice($header_head_choice, 'headings');
+    $content_body_stack = fwp_font_stack_from_choice($content_body_choice, 'body');
+    $content_head_stack = fwp_font_stack_from_choice($content_head_choice, 'headings');
+    $footer_body_stack = fwp_font_stack_from_choice($footer_body_choice, 'body');
+    $footer_head_stack = fwp_font_stack_from_choice($footer_head_choice, 'headings');
+
+    $css = ":root{";
+    if ($global_body_stack) {
+        $css .= "--fwp-font-body:" . $global_body_stack . ";";
+    }
+    if ($global_head_stack) {
+        $css .= "--fwp-font-headings:" . $global_head_stack . ";";
+    }
+    if ($sitetitle_stack) {
+        $css .= "--fwp-font-sitetitle:" . $sitetitle_stack . ";";
+    }
+    $css .= "}";
+
+    // Global application.
+    if ($global_body_stack) {
+        $css .= "body{font-family:var(--fwp-font-body);}";
+    }
+    if ($global_head_stack) {
+        $css .= "h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{font-family:var(--fwp-font-headings);}";
+    }
+
+    // Section variables (when set).
+    if ($header_body_stack) {
+        $css .= ".site-header{--fwp-section-font-body:" . $header_body_stack . ";}";
+    }
+    if ($header_head_stack) {
+        $css .= ".site-header{--fwp-section-font-headings:" . $header_head_stack . ";}";
+    }
+    if ($content_body_stack) {
+        $css .= ".site-main{--fwp-section-font-body:" . $content_body_stack . ";}";
+    }
+    if ($content_head_stack) {
+        $css .= ".site-main{--fwp-section-font-headings:" . $content_head_stack . ";}";
+    }
+    if ($footer_body_stack) {
+        $css .= ".site-footer{--fwp-section-font-body:" . $footer_body_stack . ";}";
+    }
+    if ($footer_head_stack) {
+        $css .= ".site-footer{--fwp-section-font-headings:" . $footer_head_stack . ";}";
+    }
+
+    // Apply section vars when present; otherwise fall back to globals.
+    $css .= ".site-header{font-family:var(--fwp-section-font-body,var(--fwp-font-body,inherit));}"
+        . ".site-main{font-family:var(--fwp-section-font-body,var(--fwp-font-body,inherit));}"
+        . ".site-footer{font-family:var(--fwp-section-font-body,var(--fwp-font-body,inherit));}"
+        . ".site-header h1,.site-header h2,.site-header h3,.site-header h4,.site-header h5,.site-header h6,.site-header .h1,.site-header .h2,.site-header .h3,.site-header .h4,.site-header .h5,.site-header .h6{font-family:var(--fwp-section-font-headings,var(--fwp-font-headings,inherit));}"
+        . ".site-main h1,.site-main h2,.site-main h3,.site-main h4,.site-main h5,.site-main h6,.site-main .h1,.site-main .h2,.site-main .h3,.site-main .h4,.site-main .h5,.site-main .h6{font-family:var(--fwp-section-font-headings,var(--fwp-font-headings,inherit));}"
+        . ".site-footer h1,.site-footer h2,.site-footer h3,.site-footer h4,.site-footer h5,.site-footer h6,.site-footer .h1,.site-footer .h2,.site-footer .h3,.site-footer .h4,.site-footer .h5,.site-footer .h6{font-family:var(--fwp-section-font-headings,var(--fwp-font-headings,inherit));}";
+
+    // Site title / brand text: prefer explicit sitetitle font, else header headings, else global headings.
+    $css .= ".site-header .navbar-brand,.site-header .navbar-brand a,.site-header .offcanvas-title{font-family:var(--fwp-font-sitetitle,var(--fwp-section-font-headings,var(--fwp-font-headings,inherit)));}";
+
+    return $css;
 }
 
 // =============================================================================

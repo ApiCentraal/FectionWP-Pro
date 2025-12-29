@@ -188,6 +188,128 @@ function fwp_customize_register($wp_customize) {
             'step' => 1,
         ),
     ));
+
+    // Font families (Google + Microsoft/System + external vendor stylesheet)
+    $font_choices = fwp_font_choices();
+
+    $wp_customize->add_setting('fwp_font_body', array(
+        'default'           => '',
+        'sanitize_callback' => 'fwp_sanitize_font_choice',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_font_body', array(
+        'label'       => __('Body font (global)', 'fectionwp-pro'),
+        'description' => __('Kies het lettertype voor alle body tekst. “Standaard” gebruikt Bootstrap/thema defaults.', 'fectionwp-pro'),
+        'section'     => 'fwp_typography_settings',
+        'type'        => 'select',
+        'choices'     => $font_choices,
+    ));
+
+    $wp_customize->add_setting('fwp_font_headings', array(
+        'default'           => '',
+        'sanitize_callback' => 'fwp_sanitize_font_choice',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_font_headings', array(
+        'label'       => __('Headings font (global)', 'fectionwp-pro'),
+        'description' => __('Kies het lettertype voor headings (H1–H6).', 'fectionwp-pro'),
+        'section'     => 'fwp_typography_settings',
+        'type'        => 'select',
+        'choices'     => $font_choices,
+    ));
+
+    $wp_customize->add_setting('fwp_font_sitetitle', array(
+        'default'           => '',
+        'sanitize_callback' => 'fwp_sanitize_font_choice',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_font_sitetitle', array(
+        'label'       => __('Sitetitle/Logo tekst font', 'fectionwp-pro'),
+        'description' => __('Lettertype voor de sitetitle/brand in de header (navbar-brand). Laat leeg om de header/headings instellingen te volgen.', 'fectionwp-pro'),
+        'section'     => 'fwp_typography_settings',
+        'type'        => 'select',
+        'choices'     => $font_choices,
+    ));
+
+    // External fonts (e.g. vendor-hosted / enterprise licensed)
+    $wp_customize->add_setting('fwp_custom_font_css_url', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_custom_font_css_url', array(
+        'label'       => __('Extern font stylesheet URL', 'fectionwp-pro'),
+        'description' => __('Plak hier een URL naar een CSS stylesheet die jouw fonts definieert (@font-face). Alleen nodig als je “Extern (eigen font-URL)” selecteert. Gebruik alleen fonts/URL’s waarvoor je licentie hebt.', 'fectionwp-pro'),
+        'section'     => 'fwp_typography_settings',
+        'type'        => 'url',
+    ));
+
+    $wp_customize->add_setting('fwp_custom_font_family_body', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_custom_font_family_body', array(
+        'label'       => __('Extern font family name (body)', 'fectionwp-pro'),
+        'description' => __('Moet exact matchen met de font-family naam uit het externe stylesheet.', 'fectionwp-pro'),
+        'section'     => 'fwp_typography_settings',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('fwp_custom_font_family_headings', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_custom_font_family_headings', array(
+        'label'       => __('Extern font family name (headings)', 'fectionwp-pro'),
+        'description' => __('Moet exact matchen met de font-family naam uit het externe stylesheet.', 'fectionwp-pro'),
+        'section'     => 'fwp_typography_settings',
+        'type'        => 'text',
+    ));
+
+    // Per-section overrides
+    $section_choices = array('' => __('Overnemen van global', 'fectionwp-pro')) + array_diff_key($font_choices, array('' => true));
+
+    $sections = array(
+        'header'  => __('Header', 'fectionwp-pro'),
+        'content' => __('Content', 'fectionwp-pro'),
+        'footer'  => __('Footer', 'fectionwp-pro'),
+    );
+
+    foreach ( $sections as $key => $label ) {
+        $wp_customize->add_setting('fwp_font_' . $key . '_body', array(
+            'default'           => '',
+            'sanitize_callback' => 'fwp_sanitize_font_choice',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('fwp_font_' . $key . '_body', array(
+            'label'   => sprintf( __('%s font (body)', 'fectionwp-pro'), $label ),
+            'section' => 'fwp_typography_settings',
+            'type'    => 'select',
+            'choices' => $section_choices,
+        ));
+
+        $wp_customize->add_setting('fwp_font_' . $key . '_headings', array(
+            'default'           => '',
+            'sanitize_callback' => 'fwp_sanitize_font_choice',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('fwp_font_' . $key . '_headings', array(
+            'label'   => sprintf( __('%s font (headings)', 'fectionwp-pro'), $label ),
+            'section' => 'fwp_typography_settings',
+            'type'    => 'select',
+            'choices' => $section_choices,
+        ));
+    }
     
     // =============================================================================
     // SECTION: Blog Settings
@@ -290,6 +412,15 @@ function fwp_sanitize_checkbox($input) {
     return (bool) $input;
 }
 
+/**
+ * Sanitize font choice
+ */
+function fwp_sanitize_font_choice($input) {
+    $input = is_string($input) ? $input : '';
+    $choices = fwp_font_choices();
+    return array_key_exists($input, $choices) ? $input : '';
+}
+
 // =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
@@ -301,6 +432,138 @@ function fwp_sanitize_checkbox($input) {
  */
 function fwp_get_container_type() {
     return get_theme_mod('fwp_container_type', 'container');
+}
+
+// =============================================================================
+// TYPOGRAPHY HELPERS
+// =============================================================================
+
+function fwp_font_choices() {
+    return array(
+        '' => __('Standaard (Bootstrap/theme)', 'fectionwp-pro'),
+
+        // Google Fonts
+        'google:Inter'       => __('Google: Inter', 'fectionwp-pro'),
+        'google:Fredoka'     => __('Google: Fredoka', 'fectionwp-pro'),
+        'google:Poppins'     => __('Google: Poppins', 'fectionwp-pro'),
+        'google:Roboto'      => __('Google: Roboto', 'fectionwp-pro'),
+        'google:Montserrat'  => __('Google: Montserrat', 'fectionwp-pro'),
+
+        // Microsoft/System fonts (no external loading)
+        'microsoft:Segoe UI' => __('Microsoft: Segoe UI (systeem)', 'fectionwp-pro'),
+        'microsoft:Calibri'  => __('Microsoft: Calibri (systeem)', 'fectionwp-pro'),
+        'system:Arial'       => __('Systeem: Arial', 'fectionwp-pro'),
+
+        // Vendor-hosted fonts (enterprise / licensed URL)
+        'custom:external'    => __('Extern (eigen font-URL)', 'fectionwp-pro'),
+    );
+}
+
+function fwp_font_stack_from_choice($choice, $slot = 'body') {
+    $choice = is_string($choice) ? $choice : '';
+    $slot = is_string($slot) ? $slot : 'body';
+
+    if ('' === $choice) {
+        return '';
+    }
+
+    if (str_starts_with($choice, 'google:')) {
+        $family = trim(substr($choice, strlen('google:')));
+        return $family ? ("'" . $family . "', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif") : '';
+    }
+
+    if (str_starts_with($choice, 'microsoft:')) {
+        $family = trim(substr($choice, strlen('microsoft:')));
+        return $family ? ("'" . $family . "', system-ui, -apple-system, Arial, sans-serif") : '';
+    }
+
+    if ('system:Arial' === $choice) {
+        return "Arial, system-ui, -apple-system, 'Segoe UI', sans-serif";
+    }
+
+    if ('custom:external' === $choice) {
+        $mod_key = ('headings' === $slot) ? 'fwp_custom_font_family_headings' : 'fwp_custom_font_family_body';
+        $family = trim((string) get_theme_mod($mod_key, ''));
+        return $family ? ("'" . $family . "', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif") : '';
+    }
+
+    return '';
+}
+
+function fwp_google_font_family_from_choice($choice) {
+    if (!is_string($choice) || !str_starts_with($choice, 'google:')) {
+        return '';
+    }
+    return trim(substr($choice, strlen('google:')));
+}
+
+function fwp_google_font_query_for_family($family) {
+    $family = is_string($family) ? trim($family) : '';
+    if ('' === $family) {
+        return '';
+    }
+
+    $map = array(
+        'Inter'      => 'family=Inter:wght@400;600;700',
+        'Fredoka'    => 'family=Fredoka:wght@400;500;600;700',
+        'Poppins'    => 'family=Poppins:wght@400;600;700',
+        'Roboto'     => 'family=Roboto:wght@400;500;700',
+        'Montserrat' => 'family=Montserrat:wght@400;600;700',
+    );
+
+    return $map[$family] ?? ('family=' . rawurlencode($family) . ':wght@400;600;700');
+}
+
+function fwp_google_families_in_use() {
+    $keys = array(
+        'fwp_font_body',
+        'fwp_font_headings',
+        'fwp_font_sitetitle',
+        'fwp_font_header_body',
+        'fwp_font_header_headings',
+        'fwp_font_content_body',
+        'fwp_font_content_headings',
+        'fwp_font_footer_body',
+        'fwp_font_footer_headings',
+    );
+
+    $families = array();
+    foreach ($keys as $key) {
+        $choice = (string) get_theme_mod($key, '');
+        $family = fwp_google_font_family_from_choice($choice);
+        if ($family) {
+            $families[$family] = true;
+        }
+    }
+
+    return array_keys($families);
+}
+
+function fwp_uses_external_fonts() {
+    $url = trim((string) get_theme_mod('fwp_custom_font_css_url', ''));
+    if ('' === $url) {
+        return false;
+    }
+
+    $keys = array(
+        'fwp_font_body',
+        'fwp_font_headings',
+        'fwp_font_sitetitle',
+        'fwp_font_header_body',
+        'fwp_font_header_headings',
+        'fwp_font_content_body',
+        'fwp_font_content_headings',
+        'fwp_font_footer_body',
+        'fwp_font_footer_headings',
+    );
+
+    foreach ($keys as $key) {
+        if ('custom:external' === (string) get_theme_mod($key, '')) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
