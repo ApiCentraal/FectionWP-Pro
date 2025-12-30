@@ -47,6 +47,129 @@
    HEADER & NAVIGATIE
    ========================================================================== */
 
+/* Optional topbar/news bar */
+.fwp-topbar {
+    font-size: var(--fwp-topbar-font-size, 0.875rem);
+    font-family: var(--fwp-topbar-font-family, inherit);
+}
+
+.fwp-topbar a {
+    color: var(--fwp-topbar-link-color, inherit);
+}
+
+.fwp-topbar__inner {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.fwp-topbar--scrolling .fwp-topbar__track {
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    gap: 3rem;
+    animation: fwp-topbar-marquee var(--fwp-topbar-duration, 18s) linear infinite;
+}
+
+.fwp-topbar--scrolling .fwp-topbar__item {
+    display: inline-flex;
+    align-items: center;
+}
+
+@keyframes fwp-topbar-marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fwp-topbar__inner {
+        white-space: normal;
+    }
+
+    .fwp-topbar--scrolling .fwp-topbar__track {
+        animation: none;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Utility bar (top logo/icon menu) */
+.fwp-utilitybar {
+    font-size: 0.95rem;
+}
+
+.fwp-utilitybar a {
+    color: var(--fwp-utilitybar-link-color, inherit);
+    text-decoration: none;
+}
+
+.fwp-utilitybar a:hover {
+    text-decoration: underline;
+}
+
+.fwp-utilitybar .navbar-brand {
+    margin: 0;
+    padding: 0;
+}
+
+.fwp-utilitybar .custom-logo {
+    max-height: 32px;
+    width: auto;
+}
+
+.fwp-utilitybar .nav {
+    gap: var(--fwp-utilitybar-gap, 0.25rem);
+}
+
+.fwp-utilitybar__link {
+    padding: 0.25rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fwp-utilitybar__extras {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fwp-utilitybar-gap, 0.25rem);
+}
+
+.fwp-utilitybar button.fwp-utilitybar__link {
+    background: transparent;
+    border: 0;
+    color: inherit;
+}
+
+.fwp-love-button.is-loved .bi {
+    color: var(--fwp-utilitybar-link-color, inherit);
+}
+
+.header-search-form {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 260px;
+    padding: 0.5rem;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    z-index: 1000;
+}
+
+.header-search-form.show {
+    display: block;
+}
+
+.fwp-utilitybar__link .bi {
+    font-size: var(--fwp-utilitybar-icon-size, 1.1rem);
+    line-height: 1;
+    display: inline-block;
+}
+
 /* Custom logo sizing */
 .custom-logo {
     max-height: 40px;
