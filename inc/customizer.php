@@ -13,6 +13,9 @@ defined('ABSPATH') || exit;
  * Add customizer settings
  */
 function fwp_customize_register($wp_customize) {
+
+    // Font families (shared choices) – needed by multiple sections (e.g. Topbar).
+    $font_choices = fwp_font_choices();
     
     // =============================================================================
     // SECTION: Layout Settings
@@ -123,6 +126,495 @@ function fwp_customize_register($wp_customize) {
             'dark'  => __('Dark (donkere achtergrond)', 'fectionwp-pro'),
         ),
     ));
+
+    // Logo position (left/center/right)
+    $wp_customize->add_setting('fwp_navbar_logo_position', array(
+        'default'           => 'left',
+        'sanitize_callback' => 'fwp_sanitize_navbar_logo_position',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_navbar_logo_position', array(
+        'label'       => __('Logo positie', 'fectionwp-pro'),
+        'description' => __('Kies waar het logo/brand in de navbar staat (desktop).', 'fectionwp-pro'),
+        'section'     => 'fwp_nav_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'left'   => __('Links', 'fectionwp-pro'),
+            'center' => __('Midden', 'fectionwp-pro'),
+            'right'  => __('Rechts', 'fectionwp-pro'),
+        ),
+    ));
+
+    // Show/hide logo in main navbar
+    $wp_customize->add_setting('fwp_navbar_show_logo', array(
+        'default'           => true,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_navbar_show_logo', array(
+        'label'       => __('Logo tonen in hoofdmenu', 'fectionwp-pro'),
+        'description' => __('Zet uit om het logo/brand in de navbar te verbergen (handig als je het logo alleen in de utility bar wilt).', 'fectionwp-pro'),
+        'section'     => 'fwp_nav_settings',
+        'type'        => 'checkbox',
+    ));
+
+    // Menu alignment (left/center/right)
+    $wp_customize->add_setting('fwp_nav_menu_alignment', array(
+        'default'           => 'right',
+        'sanitize_callback' => 'fwp_sanitize_nav_menu_alignment',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_nav_menu_alignment', array(
+        'label'       => __('Menu uitlijning', 'fectionwp-pro'),
+        'description' => __('Kies hoe de menu items uitlijnen in de navbar (desktop).', 'fectionwp-pro'),
+        'section'     => 'fwp_nav_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'left'   => __('Links', 'fectionwp-pro'),
+            'center' => __('Midden', 'fectionwp-pro'),
+            'right'  => __('Rechts', 'fectionwp-pro'),
+        ),
+    ));
+
+    // Navbar colors
+    $wp_customize->add_setting('fwp_navbar_bg_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_navbar_bg_color', array(
+        'label'       => __('Navbar achtergrondkleur', 'fectionwp-pro'),
+        'description' => __('Laat leeg om Bootstrap/thema default te gebruiken.', 'fectionwp-pro'),
+        'section'     => 'fwp_nav_settings',
+    )));
+
+    $wp_customize->add_setting('fwp_navbar_link_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_navbar_link_color', array(
+        'label'       => __('Navbar link kleur', 'fectionwp-pro'),
+        'description' => __('Kleur voor menu links in de navbar. Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_nav_settings',
+    )));
+
+    $wp_customize->add_setting('fwp_navbar_link_hover_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_navbar_link_hover_color', array(
+        'label'       => __('Navbar link hover kleur', 'fectionwp-pro'),
+        'description' => __('Hover/active kleur voor menu links. Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_nav_settings',
+    )));
+
+    $wp_customize->add_setting('fwp_navbar_brand_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_navbar_brand_color', array(
+        'label'       => __('Navbar logo/brand kleur', 'fectionwp-pro'),
+        'description' => __('Kleur voor logo/brand (vooral relevant bij tekst-logo). Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_nav_settings',
+    )));
+
+    // =============================================================================
+    // SECTION: Topbar / News bar
+    // =============================================================================
+
+    $wp_customize->add_section('fwp_topbar_settings', array(
+        'title'    => __('Topbar / Nieuwsbalk', 'fectionwp-pro'),
+        'priority' => 31.5,
+    ));
+
+    $wp_customize->add_setting('fwp_topbar_enabled', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_topbar_enabled', array(
+        'label'       => __('Topbar inschakelen', 'fectionwp-pro'),
+        'description' => __('Toon een smalle balk boven de navbar (bijv. nieuws/actie).', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_topbar_scrolling', array(
+        'default'           => true,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_topbar_scrolling', array(
+        'label'       => __('Scrolling (marquee)', 'fectionwp-pro'),
+        'description' => __('Laat de topbar tekst automatisch scrollen. Let op: bij “Verminderde beweging” in het OS wordt scrollen automatisch uitgeschakeld.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_topbar_scroll_duration', array(
+        'default'           => 18,
+        'sanitize_callback' => 'fwp_sanitize_topbar_scroll_duration',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_topbar_scroll_duration', array(
+        'label'       => __('Scroll snelheid (seconden)', 'fectionwp-pro'),
+        'description' => __('Hoe hoger, hoe langzamer. Bijvoorbeeld 18–30 seconden.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+        'type'        => 'number',
+        'input_attrs' => array(
+            'min'  => 8,
+            'max'  => 60,
+            'step' => 1,
+        ),
+    ));
+
+    // Topbar typography
+    $wp_customize->add_setting('fwp_topbar_font_family', array(
+        'default'           => '',
+        'sanitize_callback' => 'fwp_sanitize_font_choice',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_topbar_font_family', array(
+        'label'       => __('Topbar font', 'fectionwp-pro'),
+        'description' => __('Lettertype voor de topbar. “Standaard” volgt de globale body font.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+        'type'        => 'select',
+        'choices'     => $font_choices,
+    ));
+
+    $wp_customize->add_setting('fwp_topbar_font_size', array(
+        'default'           => 14,
+        'sanitize_callback' => 'fwp_sanitize_topbar_font_size',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_topbar_font_size', array(
+        'label'       => __('Topbar fontgrootte (px)', 'fectionwp-pro'),
+        'description' => __('Bijv. 12–16px. Wordt toegepast op de topbar (ook bij scrolling).', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+        'type'        => 'number',
+        'input_attrs' => array(
+            'min'  => 10,
+            'max'  => 20,
+            'step' => 1,
+        ),
+    ));
+
+    $wp_customize->add_setting('fwp_topbar_content', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_topbar_content', array(
+        'label'       => __('Topbar content', 'fectionwp-pro'),
+        'description' => __('Tekst/HTML toegestaan (bijv. link). Voorbeeld: <a href="/contact/">Nu boeken</a>.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+        'type'        => 'textarea',
+    ));
+
+    $wp_customize->add_setting('fwp_topbar_alignment', array(
+        'default'           => 'center',
+        'sanitize_callback' => 'fwp_sanitize_topbar_alignment',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_topbar_alignment', array(
+        'label'       => __('Topbar uitlijning', 'fectionwp-pro'),
+        'description' => __('Uitlijning van de topbar tekst.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'left'   => __('Links', 'fectionwp-pro'),
+            'center' => __('Midden', 'fectionwp-pro'),
+            'right'  => __('Rechts', 'fectionwp-pro'),
+        ),
+    ));
+
+    $wp_customize->add_setting('fwp_topbar_bg_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_topbar_bg_color', array(
+        'label'       => __('Topbar achtergrondkleur', 'fectionwp-pro'),
+        'description' => __('Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+    )));
+
+    $wp_customize->add_setting('fwp_topbar_text_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_topbar_text_color', array(
+        'label'       => __('Topbar tekstkleur', 'fectionwp-pro'),
+        'description' => __('Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+    )));
+
+    $wp_customize->add_setting('fwp_topbar_link_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_topbar_link_color', array(
+        'label'       => __('Topbar link kleur', 'fectionwp-pro'),
+        'description' => __('Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_topbar_settings',
+    )));
+
+    // =============================================================================
+    // SECTION: Utility bar / Top menu (logo/iconen)
+    // =============================================================================
+
+    $wp_customize->add_section('fwp_utilitybar_settings', array(
+        'title'    => __('Utility bar / Top menu', 'fectionwp-pro'),
+        'priority' => 31.7,
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_enabled', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_enabled', array(
+        'label'       => __('Utility bar inschakelen', 'fectionwp-pro'),
+        'description' => __('Toon een extra balk tussen de topbar/nieuwsbalk en het hoofdmenu (bijv. logo + iconen/links).', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_show_logo', array(
+        'default'           => true,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_show_logo', array(
+        'label'       => __('Logo tonen in utility bar', 'fectionwp-pro'),
+        'description' => __('Handig als je het hoofdmenu compacter wilt houden (logo boven, menu eronder).', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_logo_position', array(
+        'default'           => 'left',
+        'sanitize_callback' => 'fwp_sanitize_utilitybar_logo_position',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_logo_position', array(
+        'label'       => __('Logo positie in utility bar', 'fectionwp-pro'),
+        'description' => __('Links/midden/rechts (op desktop).', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'left'   => __('Links', 'fectionwp-pro'),
+            'center' => __('Midden', 'fectionwp-pro'),
+            'right'  => __('Rechts', 'fectionwp-pro'),
+        ),
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_show_icon_labels', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_show_icon_labels', array(
+        'label'       => __('Iconen: tekstlabels tonen', 'fectionwp-pro'),
+        'description' => __('Als uit: menu-items met een bi-* class worden als “alleen icoon” gerenderd (titel blijft toegankelijk voor screenreaders).', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_icon_size', array(
+        'default'           => 18,
+        'sanitize_callback' => 'fwp_sanitize_utilitybar_icon_size',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_icon_size', array(
+        'label'       => __('Iconen grootte (px)', 'fectionwp-pro'),
+        'description' => __('Bijv. 16–24px.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'number',
+        'input_attrs' => array(
+            'min'  => 12,
+            'max'  => 32,
+            'step' => 1,
+        ),
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_item_gap', array(
+        'default'           => 4,
+        'sanitize_callback' => 'fwp_sanitize_utilitybar_item_gap',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_item_gap', array(
+        'label'       => __('Spacing tussen items (px)', 'fectionwp-pro'),
+        'description' => __('Afstand tussen iconen/links in het utility menu.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'number',
+        'input_attrs' => array(
+            'min'  => 0,
+            'max'  => 24,
+            'step' => 1,
+        ),
+    ));
+
+    // Quick icons (standard utility actions)
+    $wp_customize->add_setting('fwp_utilitybar_quick_love', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_quick_love', array(
+        'label'       => __('Standaard icoon: Love (likes)', 'fectionwp-pro'),
+        'description' => __('Toont een hart-icoon waarmee bezoekers een “like” kunnen geven op de huidige pagina/post.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_quick_profile', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_quick_profile', array(
+        'label'       => __('Standaard icoon: Mijn profiel', 'fectionwp-pro'),
+        'description' => __('Linkt naar een “mijn account/profiel” pagina. Met WooCommerce actief wordt automatisch “Mijn account” gebruikt als je geen pagina kiest.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_profile_page', array(
+        'default'           => 0,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_profile_page', array(
+        'label'       => __('Profiel pagina (optioneel)', 'fectionwp-pro'),
+        'description' => __('Kies een pagina als target voor “Mijn profiel”. Laat leeg om auto-detect te gebruiken (WooCommerce) of anders login.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'dropdown-pages',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_quick_search', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_quick_search', array(
+        'label'       => __('Standaard icoon: Zoeken', 'fectionwp-pro'),
+        'description' => __('Toont een zoek-icoon met een dropdown zoekveld in de utility bar.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_quick_cart', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_quick_cart', array(
+        'label'       => __('Standaard icoon: Winkelwagen', 'fectionwp-pro'),
+        'description' => __('Linkt naar de winkelwagen. Met WooCommerce actief wordt de WooCommerce winkelwagen URL gebruikt als je geen pagina kiest.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'checkbox',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_cart_page', array(
+        'default'           => 0,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_cart_page', array(
+        'label'       => __('Winkelwagen pagina (optioneel)', 'fectionwp-pro'),
+        'description' => __('Kies een pagina als target voor “Winkelwagen”. Laat leeg om auto-detect te gebruiken (WooCommerce) of fallback.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'dropdown-pages',
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_alignment', array(
+        'default'           => 'right',
+        'sanitize_callback' => 'fwp_sanitize_utilitybar_alignment',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_utilitybar_alignment', array(
+        'label'       => __('Menu/iconen uitlijning', 'fectionwp-pro'),
+        'description' => __('Uitlijning van de utility menu items (vooral relevant als je het logo uitzet).', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'left'   => __('Links', 'fectionwp-pro'),
+            'center' => __('Midden', 'fectionwp-pro'),
+            'right'  => __('Rechts', 'fectionwp-pro'),
+        ),
+    ));
+
+    $wp_customize->add_setting('fwp_utilitybar_bg_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_utilitybar_bg_color', array(
+        'label'       => __('Utility bar achtergrondkleur', 'fectionwp-pro'),
+        'description' => __('Laat leeg voor transparant/default.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+    )));
+
+    $wp_customize->add_setting('fwp_utilitybar_text_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_utilitybar_text_color', array(
+        'label'       => __('Utility bar tekstkleur', 'fectionwp-pro'),
+        'description' => __('Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+    )));
+
+    $wp_customize->add_setting('fwp_utilitybar_link_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_utilitybar_link_color', array(
+        'label'       => __('Utility bar link/icon kleur', 'fectionwp-pro'),
+        'description' => __('Kleur voor links/iconen in de utility bar. Laat leeg voor default.', 'fectionwp-pro'),
+        'section'     => 'fwp_utilitybar_settings',
+    )));
     
     // =============================================================================
     // SECTION: Footer Settings
@@ -406,6 +898,99 @@ function fwp_sanitize_navbar_scheme($input) {
 }
 
 /**
+ * Sanitize navbar logo position
+ */
+function fwp_sanitize_navbar_logo_position($input) {
+    $valid = array('left', 'center', 'right');
+    return in_array($input, $valid, true) ? $input : 'left';
+}
+
+/**
+ * Sanitize menu alignment
+ */
+function fwp_sanitize_nav_menu_alignment($input) {
+    $valid = array('left', 'center', 'right');
+    return in_array($input, $valid, true) ? $input : 'right';
+}
+
+/**
+ * Sanitize topbar alignment
+ */
+function fwp_sanitize_topbar_alignment($input) {
+    $valid = array('left', 'center', 'right');
+    return in_array($input, $valid, true) ? $input : 'center';
+}
+
+/**
+ * Sanitize utility bar alignment
+ */
+function fwp_sanitize_utilitybar_alignment($input) {
+    $valid = array('left', 'center', 'right');
+    return in_array($input, $valid, true) ? $input : 'right';
+}
+
+/**
+ * Sanitize utility bar logo position
+ */
+function fwp_sanitize_utilitybar_logo_position($input) {
+    $valid = array('left', 'center', 'right');
+    return in_array($input, $valid, true) ? $input : 'left';
+}
+
+/**
+ * Sanitize utility bar icon size (px)
+ */
+function fwp_sanitize_utilitybar_icon_size($input) {
+    $value = absint($input);
+    if ($value < 12) {
+        return 12;
+    }
+    if ($value > 32) {
+        return 32;
+    }
+    return $value;
+}
+
+/**
+ * Sanitize utility bar item gap (px)
+ */
+function fwp_sanitize_utilitybar_item_gap($input) {
+    $value = absint($input);
+    if ($value > 24) {
+        return 24;
+    }
+    return $value;
+}
+
+/**
+ * Sanitize topbar scroll duration
+ */
+function fwp_sanitize_topbar_scroll_duration($input) {
+    $value = absint($input);
+    if ($value < 8) {
+        return 8;
+    }
+    if ($value > 60) {
+        return 60;
+    }
+    return $value;
+}
+
+/**
+ * Sanitize topbar font size
+ */
+function fwp_sanitize_topbar_font_size($input) {
+    $value = absint($input);
+    if ($value < 10) {
+        return 10;
+    }
+    if ($value > 20) {
+        return 20;
+    }
+    return $value;
+}
+
+/**
  * Sanitize checkbox
  */
 function fwp_sanitize_checkbox($input) {
@@ -617,6 +1202,195 @@ function fwp_get_navbar_sticky() {
  */
 function fwp_get_navbar_scheme() {
     return get_theme_mod('fwp_navbar_scheme', 'light');
+}
+
+/**
+ * Get navbar logo position
+ *
+ * @return string left|center|right
+ */
+function fwp_get_navbar_logo_position() {
+    return get_theme_mod('fwp_navbar_logo_position', 'left');
+}
+
+/**
+ * Show logo/brand in main navbar
+ *
+ * @return bool
+ */
+function fwp_navbar_show_logo() {
+    return (bool) get_theme_mod('fwp_navbar_show_logo', true);
+}
+
+/**
+ * Get menu alignment
+ *
+ * @return string left|center|right
+ */
+function fwp_get_nav_menu_alignment() {
+    return get_theme_mod('fwp_nav_menu_alignment', 'right');
+}
+
+/**
+ * Navbar colors (hex or empty)
+ */
+function fwp_get_navbar_bg_color() {
+    return (string) get_theme_mod('fwp_navbar_bg_color', '');
+}
+
+function fwp_get_navbar_link_color() {
+    return (string) get_theme_mod('fwp_navbar_link_color', '');
+}
+
+function fwp_get_navbar_link_hover_color() {
+    return (string) get_theme_mod('fwp_navbar_link_hover_color', '');
+}
+
+function fwp_get_navbar_brand_color() {
+    return (string) get_theme_mod('fwp_navbar_brand_color', '');
+}
+
+// =============================================================================
+// TOPBAR HELPERS
+// =============================================================================
+
+function fwp_topbar_enabled() {
+    return (bool) get_theme_mod('fwp_topbar_enabled', false);
+}
+
+function fwp_get_topbar_content() {
+    return (string) get_theme_mod('fwp_topbar_content', '');
+}
+
+function fwp_get_topbar_alignment() {
+    return (string) get_theme_mod('fwp_topbar_alignment', 'center');
+}
+
+function fwp_get_topbar_bg_color() {
+    return (string) get_theme_mod('fwp_topbar_bg_color', '');
+}
+
+function fwp_get_topbar_text_color() {
+    return (string) get_theme_mod('fwp_topbar_text_color', '');
+}
+
+function fwp_get_topbar_link_color() {
+    return (string) get_theme_mod('fwp_topbar_link_color', '');
+}
+
+function fwp_topbar_scrolling_enabled() {
+    return (bool) get_theme_mod('fwp_topbar_scrolling', true);
+}
+
+function fwp_get_topbar_scroll_duration() {
+    return (int) get_theme_mod('fwp_topbar_scroll_duration', 18);
+}
+
+function fwp_get_topbar_font_family_choice() {
+    return (string) get_theme_mod('fwp_topbar_font_family', '');
+}
+
+function fwp_get_topbar_font_stack() {
+    $choice = fwp_get_topbar_font_family_choice();
+    return fwp_font_stack_from_choice($choice, 'body');
+}
+
+function fwp_get_topbar_font_size() {
+    return (int) get_theme_mod('fwp_topbar_font_size', 14);
+}
+
+// =============================================================================
+// UTILITY BAR HELPERS
+// =============================================================================
+
+function fwp_utilitybar_enabled() {
+    return (bool) get_theme_mod('fwp_utilitybar_enabled', false);
+}
+
+function fwp_utilitybar_show_logo() {
+    return (bool) get_theme_mod('fwp_utilitybar_show_logo', true);
+}
+
+function fwp_get_utilitybar_logo_position() {
+    return (string) get_theme_mod('fwp_utilitybar_logo_position', 'left');
+}
+
+function fwp_utilitybar_show_icon_labels() {
+    return (bool) get_theme_mod('fwp_utilitybar_show_icon_labels', false);
+}
+
+function fwp_get_utilitybar_icon_size() {
+    return (int) get_theme_mod('fwp_utilitybar_icon_size', 18);
+}
+
+function fwp_get_utilitybar_item_gap() {
+    return (int) get_theme_mod('fwp_utilitybar_item_gap', 4);
+}
+
+function fwp_get_utilitybar_alignment() {
+    return (string) get_theme_mod('fwp_utilitybar_alignment', 'right');
+}
+
+function fwp_get_utilitybar_bg_color() {
+    return (string) get_theme_mod('fwp_utilitybar_bg_color', '');
+}
+
+function fwp_get_utilitybar_text_color() {
+    return (string) get_theme_mod('fwp_utilitybar_text_color', '');
+}
+
+function fwp_get_utilitybar_link_color() {
+    return (string) get_theme_mod('fwp_utilitybar_link_color', '');
+}
+
+function fwp_utilitybar_quick_love_enabled() {
+    return (bool) get_theme_mod('fwp_utilitybar_quick_love', false);
+}
+
+function fwp_utilitybar_quick_profile_enabled() {
+    return (bool) get_theme_mod('fwp_utilitybar_quick_profile', false);
+}
+
+function fwp_utilitybar_quick_search_enabled() {
+    return (bool) get_theme_mod('fwp_utilitybar_quick_search', false);
+}
+
+function fwp_utilitybar_quick_cart_enabled() {
+    return (bool) get_theme_mod('fwp_utilitybar_quick_cart', false);
+}
+
+function fwp_get_utilitybar_profile_url() {
+    $page_id = absint( get_theme_mod( 'fwp_utilitybar_profile_page', 0 ) );
+    if ( $page_id ) {
+        $url = get_permalink( $page_id );
+        return $url ? $url : '';
+    }
+
+    if ( function_exists( 'wc_get_page_permalink' ) ) {
+        $url = wc_get_page_permalink( 'myaccount' );
+        if ( $url ) {
+            return $url;
+        }
+    }
+
+    return wp_login_url();
+}
+
+function fwp_get_utilitybar_cart_url() {
+    $page_id = absint( get_theme_mod( 'fwp_utilitybar_cart_page', 0 ) );
+    if ( $page_id ) {
+        $url = get_permalink( $page_id );
+        return $url ? $url : '';
+    }
+
+    if ( function_exists( 'wc_get_cart_url' ) ) {
+        $url = wc_get_cart_url();
+        if ( $url ) {
+            return $url;
+        }
+    }
+
+    return home_url( '/winkelwagen/' );
 }
 
 /**
