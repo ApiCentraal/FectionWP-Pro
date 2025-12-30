@@ -18,6 +18,9 @@ defined('ABSPATH') || exit;
 // Nav Walker voor Bootstrap 5 dropdown menu's
 require_once get_template_directory() . '/inc/class-wp-bootstrap-navwalker.php';
 
+// Utility menu walker (icon menu)
+require_once get_template_directory() . '/inc/class-fwp-utility-menu-walker.php';
+
 // Theme Customizer instellingen
 require_once get_template_directory() . '/inc/customizer.php';
 
@@ -146,6 +149,7 @@ if (!function_exists('fwp_setup')) {
         // Registreer menu locaties
         register_nav_menus(array(
             'primary' => __('Hoofdmenu', 'fectionwp-pro'),
+            'utility' => __('Top menu (logo/iconen)', 'fectionwp-pro'),
             'footer'  => __('Footer Menu', 'fectionwp-pro'),
         ));
     }
@@ -225,6 +229,15 @@ if (!function_exists('fwp_enqueue_assets')) {
             true // In footer laden
         );
 
+        wp_localize_script(
+            'fwp-theme',
+            'fwpTheme',
+            array(
+                'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
+                'loveNonce'  => wp_create_nonce( 'fwp_love' ),
+            )
+        );
+
         // ---------------------------------------------------------------------
         // Typography: dynamic font loading + CSS variables
         // ---------------------------------------------------------------------
@@ -262,6 +275,30 @@ if (!function_exists('fwp_enqueue_assets')) {
     }
     add_action('wp_enqueue_scripts', 'fwp_enqueue_assets');
 }
+
+// -----------------------------------------------------------------------------
+// Utility bar: “Love” (visitor likes)
+// -----------------------------------------------------------------------------
+
+function fwp_ajax_add_love() {
+    check_ajax_referer( 'fwp_love', 'nonce' );
+
+    $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+    if ( ! $post_id || ! get_post_status( $post_id ) ) {
+        wp_send_json_error( array( 'message' => 'Invalid post.' ), 400 );
+    }
+
+    $current = (int) get_post_meta( $post_id, '_fwp_love_count', true );
+    $current = max( 0, $current );
+    $current++;
+
+    update_post_meta( $post_id, '_fwp_love_count', $current );
+
+    wp_send_json_success( array( 'count' => $current ) );
+}
+
+add_action( 'wp_ajax_fwp_add_love', 'fwp_ajax_add_love' );
+add_action( 'wp_ajax_nopriv_fwp_add_love', 'fwp_ajax_add_love' );
 
 /**
  * Build CSS variables that apply font selections (global + header/content/footer).
@@ -463,14 +500,26 @@ if (!function_exists('fwp_widgets_init')) {
  *   └─→ fallback → site titel link
  */
 function fwp_the_custom_logo() {
-    if (has_custom_logo()) {
-        the_custom_logo();
-    } else {
-        if (is_front_page() && is_home()) {
-            echo '<h1 class="navbar-brand mb-0"><a href="' . esc_url(home_url('/')) . '" rel="home">' . get_bloginfo('name') . '</a></h1>';
-        } else {
-            echo '<a class="navbar-brand" href="' . esc_url(home_url('/')) . '" rel="home">' . get_bloginfo('name') . '</a>';
+    $home_url = esc_url( home_url( '/' ) );
+
+    if ( has_custom_logo() ) {
+        $logo_id = (int) get_theme_mod( 'custom_logo' );
+        $logo    = $logo_id ? wp_get_attachment_image( $logo_id, 'full', false, array( 'class' => 'custom-logo' ) ) : '';
+
+        if ( $logo ) {
+            echo '<a class="navbar-brand" href="' . $home_url . '" rel="home">' . $logo . '</a>';
+            return;
         }
+
+        // Fallback to core output if something unexpected happens.
+        the_custom_logo();
+        return;
+    }
+
+    if ( is_front_page() && is_home() ) {
+        echo '<h1 class="navbar-brand mb-0"><a href="' . $home_url . '" rel="home">' . get_bloginfo( 'name' ) . '</a></h1>';
+    } else {
+        echo '<a class="navbar-brand" href="' . $home_url . '" rel="home">' . get_bloginfo( 'name' ) . '</a>';
     }
 }
 

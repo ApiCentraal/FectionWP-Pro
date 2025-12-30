@@ -217,5 +217,84 @@ document.addEventListener('DOMContentLoaded', function () {
             wrapper.appendChild(table);
         });
     })();
+
+    // =========================================================================
+    // UTILITY BAR: LOVE BUTTON (VISITOR LIKES)
+    // =========================================================================
+
+    (function initUtilityLove() {
+        var loveButton = document.querySelector('.fwp-love-button');
+        if (!loveButton) {
+            return;
+        }
+
+        var postId = loveButton.getAttribute('data-post-id');
+        if (!postId) {
+            return;
+        }
+
+        var storageKey = 'fwp_love_' + String(postId);
+        var alreadyLoved = false;
+        try {
+            alreadyLoved = window.localStorage.getItem(storageKey) === '1';
+        } catch (e) {
+            alreadyLoved = false;
+        }
+
+        if (alreadyLoved) {
+            loveButton.classList.add('is-loved');
+            loveButton.setAttribute('aria-pressed', 'true');
+        }
+
+        loveButton.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            if (loveButton.classList.contains('is-loved')) {
+                return;
+            }
+
+            var ajaxUrl = (window.fwpTheme && window.fwpTheme.ajaxUrl) ? window.fwpTheme.ajaxUrl : null;
+            var nonce = (window.fwpTheme && window.fwpTheme.loveNonce) ? window.fwpTheme.loveNonce : null;
+            if (!ajaxUrl || !nonce) {
+                return;
+            }
+
+            var body = new URLSearchParams();
+            body.set('action', 'fwp_add_love');
+            body.set('nonce', nonce);
+            body.set('post_id', String(postId));
+
+            fetch(ajaxUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: body.toString()
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data || !data.success || !data.data) {
+                        return;
+                    }
+
+                    var countEl = loveButton.querySelector('.fwp-utilitybar__count');
+                    if (countEl && typeof data.data.count !== 'undefined') {
+                        countEl.textContent = String(data.data.count);
+                        countEl.classList.remove('d-none');
+                    }
+
+                    loveButton.classList.add('is-loved');
+                    loveButton.setAttribute('aria-pressed', 'true');
+                    try {
+                        window.localStorage.setItem(storageKey, '1');
+                    } catch (e) {
+                        // ignore
+                    }
+                })
+                .catch(function () {
+                    // ignore
+                });
+        });
+    })();
     
 });
