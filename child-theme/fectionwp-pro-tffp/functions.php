@@ -149,6 +149,7 @@ function tffp_uses_external_fonts(): bool {
 add_action( 'after_setup_theme', function () {
     register_nav_menus( array(
         'primary' => __( 'Hoofdmenu', 'fectionwp-pro' ),
+        'utility' => __( 'Top menu (logo/iconen)', 'fectionwp-pro' ),
         'footer'  => __( 'Footer Menu', 'fectionwp-pro' ),
     ) );
 }, 20 );
