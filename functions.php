@@ -272,6 +272,14 @@ if (!function_exists('fwp_enqueue_assets')) {
                 wp_add_inline_style('fwp-custom', $css);
             }
         }
+        
+        // Site title/logo styling CSS
+        if (function_exists('fwp_build_site_title_css')) {
+            $title_css = fwp_build_site_title_css();
+            if ($title_css) {
+                wp_add_inline_style('fwp-custom', $title_css);
+            }
+        }
     }
     add_action('wp_enqueue_scripts', 'fwp_enqueue_assets');
 }
@@ -385,6 +393,123 @@ function fwp_build_typography_css_vars() {
     $css .= ".site-header .navbar-brand,.site-header .navbar-brand a,.site-header .offcanvas-title{font-family:var(--fwp-font-sitetitle,var(--fwp-section-font-headings,var(--fwp-font-headings,inherit)));}";
 
     return $css;
+}
+
+/**
+ * Build CSS for site title/logo styling
+ */
+function fwp_build_site_title_css() {
+    // Get settings
+    $font_family      = get_theme_mod('fwp_site_title_font', '');
+    $font_size        = absint(get_theme_mod('fwp_site_title_font_size', 24));
+    $font_weight      = get_theme_mod('fwp_site_title_font_weight', '700');
+    $text_transform   = get_theme_mod('fwp_site_title_text_transform', 'none');
+    $letter_spacing   = floatval(get_theme_mod('fwp_site_title_letter_spacing', 0));
+    $color            = get_theme_mod('fwp_site_title_color', '');
+    $hover_color      = get_theme_mod('fwp_site_title_hover_color', '');
+    $bg_color         = get_theme_mod('fwp_site_title_bg_color', '');
+    $padding          = absint(get_theme_mod('fwp_site_title_padding', 0));
+    $border_radius    = absint(get_theme_mod('fwp_site_title_border_radius', 0));
+    $text_shadow      = get_theme_mod('fwp_site_title_text_shadow', false);
+    $preset           = get_theme_mod('fwp_site_title_preset', 'none');
+    $mobile_size      = absint(get_theme_mod('fwp_site_title_mobile_size', 0));
+    $show_tagline     = get_theme_mod('fwp_show_tagline', false);
+    $tagline_size     = absint(get_theme_mod('fwp_tagline_font_size', 12));
+    
+    $css = '';
+    
+    // Apply preset styles first
+    if ($preset !== 'none') {
+        $css .= fwp_get_title_preset_css($preset);
+    }
+    
+    // Custom overrides
+    $styles = array();
+    
+    if ($font_family && function_exists('fwp_font_stack_from_choice')) {
+        $font_stack = fwp_font_stack_from_choice($font_family, 'headings');
+        if ($font_stack) {
+            $styles[] = 'font-family:' . $font_stack;
+        }
+    }
+    
+    if ($font_size > 0) {
+        $styles[] = 'font-size:' . $font_size . 'px';
+    }
+    
+    if ($font_weight) {
+        $styles[] = 'font-weight:' . $font_weight;
+    }
+    
+    if ($text_transform && $text_transform !== 'none') {
+        $styles[] = 'text-transform:' . $text_transform;
+    }
+    
+    if ($letter_spacing != 0) {
+        $styles[] = 'letter-spacing:' . $letter_spacing . 'px';
+    }
+    
+    if ($color) {
+        $styles[] = 'color:' . $color . ' !important';
+    }
+    
+    if ($bg_color) {
+        $styles[] = 'background-color:' . $bg_color;
+    }
+    
+    if ($padding > 0) {
+        $styles[] = 'padding:' . $padding . 'px ' . ($padding * 1.5) . 'px';
+    }
+    
+    if ($border_radius > 0) {
+        $styles[] = 'border-radius:' . $border_radius . 'px';
+    }
+    
+    if ($text_shadow) {
+        $styles[] = 'text-shadow:2px 2px 4px rgba(0,0,0,0.3)';
+    }
+    
+    if (!empty($styles)) {
+        $css .= '.navbar-brand,.navbar-brand a,.site-title{' . implode(';', $styles) . ';}';
+        
+        // Add transition for smooth effects
+        $css .= '.navbar-brand,.navbar-brand a{transition:all 0.3s ease;}';
+    }
+    
+    // Hover color
+    if ($hover_color) {
+        $css .= '.navbar-brand:hover,.navbar-brand a:hover{color:' . $hover_color . ' !important;}';
+    }
+    
+    // Mobile specific size
+    if ($mobile_size > 0) {
+        $css .= '@media (max-width:767px){.navbar-brand,.navbar-brand a,.site-title{font-size:' . $mobile_size . 'px;}}';
+    }
+    
+    // Tagline styling
+    if ($show_tagline) {
+        $css .= '.site-tagline{display:block;font-size:' . $tagline_size . 'px;opacity:0.8;font-weight:400;}';
+    } else {
+        $css .= '.site-tagline{display:none;}';
+    }
+    
+    return $css;
+}
+
+/**
+ * Get preset CSS for site title
+ */
+function fwp_get_title_preset_css($preset) {
+    $presets = array(
+        'minimal' => '.navbar-brand,.navbar-brand a{font-weight:300;letter-spacing:2px;text-transform:uppercase;font-size:18px;}',
+        'bold' => '.navbar-brand,.navbar-brand a{font-weight:900;font-size:32px;text-transform:uppercase;letter-spacing:-1px;}',
+        'elegant' => '.navbar-brand,.navbar-brand a{font-weight:400;font-size:28px;letter-spacing:1px;font-style:italic;}',
+        'playful' => '.navbar-brand,.navbar-brand a{font-weight:700;font-size:26px;text-transform:lowercase;letter-spacing:0.5px;border-radius:8px;}',
+        'badge' => '.navbar-brand,.navbar-brand a{font-weight:600;font-size:20px;padding:8px 16px;background:var(--bs-primary);color:#fff !important;border-radius:20px;}',
+        'outlined' => '.navbar-brand,.navbar-brand a{font-weight:700;font-size:24px;padding:6px 12px;border:2px solid currentColor;border-radius:4px;}',
+    );
+    
+    return isset($presets[$preset]) ? $presets[$preset] : '';
 }
 
 // =============================================================================
@@ -501,6 +626,7 @@ if (!function_exists('fwp_widgets_init')) {
  */
 function fwp_the_custom_logo() {
     $home_url = esc_url( home_url( '/' ) );
+    $show_tagline = get_theme_mod('fwp_show_tagline', false);
 
     if ( has_custom_logo() ) {
         $logo_id = (int) get_theme_mod( 'custom_logo' );
@@ -516,10 +642,25 @@ function fwp_the_custom_logo() {
         return;
     }
 
+    // Text logo with optional tagline
+    $site_name = get_bloginfo( 'name' );
+    $tagline = get_bloginfo( 'description' );
+    
     if ( is_front_page() && is_home() ) {
-        echo '<h1 class="navbar-brand mb-0"><a href="' . $home_url . '" rel="home">' . get_bloginfo( 'name' ) . '</a></h1>';
+        echo '<h1 class="navbar-brand mb-0">';
+        echo '<a href="' . $home_url . '" rel="home" class="site-title">' . $site_name;
+        if ($show_tagline && $tagline) {
+            echo '<span class="site-tagline d-block">' . esc_html($tagline) . '</span>';
+        }
+        echo '</a>';
+        echo '</h1>';
     } else {
-        echo '<a class="navbar-brand" href="' . $home_url . '" rel="home">' . get_bloginfo( 'name' ) . '</a>';
+        echo '<a class="navbar-brand" href="' . $home_url . '" rel="home">';
+        echo '<span class="site-title">' . $site_name . '</span>';
+        if ($show_tagline && $tagline) {
+            echo '<span class="site-tagline d-block">' . esc_html($tagline) . '</span>';
+        }
+        echo '</a>';
     }
 }
 
@@ -543,6 +684,337 @@ function fwp_site_info() {
             get_bloginfo('name')
         );
     }
+}
+
+// =============================================================================
+// 6. HERO SECTION HELPERS
+// =============================================================================
+
+/**
+ * Check if hero section should be displayed
+ */
+function fwp_should_display_hero() {
+    // Check if hero is enabled globally
+    if (!get_theme_mod('fwp_hero_enabled', false)) {
+        return false;
+    }
+    
+    // Check if disabled for current page/post
+    $post_id = get_queried_object_id();
+    if ($post_id) {
+        $disable_hero = get_post_meta($post_id, '_fwp_disable_hero', true);
+        if ($disable_hero === '1') {
+            return false;
+        }
+    }
+    
+    // Check display setting
+    $display_on = get_theme_mod('fwp_hero_display_on', 'all');
+    
+    switch ($display_on) {
+        case 'frontpage':
+            return is_front_page();
+        case 'pages':
+            return is_page();
+        case 'posts':
+            return is_single() && get_post_type() === 'post';
+        case 'all':
+        default:
+            return true;
+    }
+}
+
+/**
+ * Add meta box for hero settings on pages/posts
+ */
+function fwp_add_hero_meta_box() {
+    $post_types = array('page', 'post');
+    
+    foreach ($post_types as $post_type) {
+        add_meta_box(
+            'fwp_hero_settings',
+            __('Hero Sectie Instellingen', 'fectionwp-pro'),
+            'fwp_hero_meta_box_callback',
+            $post_type,
+            'side',
+            'default'
+        );
+    }
+}
+add_action('add_meta_boxes', 'fwp_add_hero_meta_box');
+
+/**
+ * Meta box callback
+ */
+function fwp_hero_meta_box_callback($post) {
+    wp_nonce_field('fwp_hero_meta_box', 'fwp_hero_meta_box_nonce');
+    
+    $disable_hero = get_post_meta($post->ID, '_fwp_disable_hero', true);
+    
+    ?>
+    <p>
+        <label>
+            <input type="checkbox" name="fwp_disable_hero" value="1" <?php checked($disable_hero, '1'); ?> />
+            <?php _e('Hero sectie verbergen op deze pagina', 'fectionwp-pro'); ?>
+        </label>
+    </p>
+    <p class="description">
+        <?php _e('Vink aan om de globale hero sectie te verbergen voor alleen deze pagina/post.', 'fectionwp-pro'); ?>
+    </p>
+    <?php
+}
+
+/**
+ * Save meta box data
+ */
+function fwp_save_hero_meta_box($post_id) {
+    // Check nonce
+    if (!isset($_POST['fwp_hero_meta_box_nonce']) || !wp_verify_nonce($_POST['fwp_hero_meta_box_nonce'], 'fwp_hero_meta_box')) {
+        return;
+    }
+    
+    // Check autosave
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    // Check permissions
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    // Save or delete meta
+    if (isset($_POST['fwp_disable_hero'])) {
+        update_post_meta($post_id, '_fwp_disable_hero', '1');
+    } else {
+        delete_post_meta($post_id, '_fwp_disable_hero');
+    }
+}
+add_action('save_post', 'fwp_save_hero_meta_box');
+
+/**
+ * Render hero section based on Customizer settings
+ */
+function fwp_render_hero() {
+    if (!fwp_should_display_hero()) {
+        return;
+    }
+    
+    // Get settings
+    $title       = get_theme_mod('fwp_hero_title', __('Welkom op onze website', 'fectionwp-pro'));
+    $subtitle    = get_theme_mod('fwp_hero_subtitle', '');
+    $description = get_theme_mod('fwp_hero_description', '');
+    $btn1_text   = get_theme_mod('fwp_hero_btn1_text', __('Meer informatie', 'fectionwp-pro'));
+    $btn1_url    = get_theme_mod('fwp_hero_btn1_url', '#');
+    $btn1_style  = get_theme_mod('fwp_hero_btn1_style', 'primary');
+    $btn2_text   = get_theme_mod('fwp_hero_btn2_text', '');
+    $btn2_url    = get_theme_mod('fwp_hero_btn2_url', '#');
+    $btn2_style  = get_theme_mod('fwp_hero_btn2_style', 'outline-primary');
+    $image_id    = get_theme_mod('fwp_hero_image', '');
+    $bg_image_id = get_theme_mod('fwp_hero_bg_image', '');
+    $bg_color    = get_theme_mod('fwp_hero_bg_color', '');
+    $text_color  = get_theme_mod('fwp_hero_text_color', '');
+    $height      = get_theme_mod('fwp_hero_height', 'medium');
+    $layout      = get_theme_mod('fwp_hero_layout', 'centered');
+    $container   = get_theme_mod('fwp_hero_container', 'container');
+    $overlay_opacity = get_theme_mod('fwp_hero_overlay_opacity', 50);
+    
+    // Build classes
+    $hero_classes = array('fwp-hero', 'position-relative');
+    $hero_classes[] = 'fwp-hero--' . $layout;
+    $hero_classes[] = 'fwp-hero--' . $height;
+    
+    // Build inline styles
+    $hero_styles = array();
+    if ($bg_color) {
+        $hero_styles[] = 'background-color:' . esc_attr($bg_color);
+    }
+    if ($text_color) {
+        $hero_styles[] = 'color:' . esc_attr($text_color);
+    }
+    if ($bg_image_id) {
+        $bg_image_url = wp_get_attachment_image_url($bg_image_id, 'full');
+        if ($bg_image_url) {
+            $hero_styles[] = 'background-image:url(' . esc_url($bg_image_url) . ')';
+            $hero_styles[] = 'background-size:cover';
+            $hero_styles[] = 'background-position:center';
+            $hero_classes[] = 'fwp-hero--has-bg-image';
+        }
+    }
+    
+    $hero_style_attr = !empty($hero_styles) ? ' style="' . implode(';', $hero_styles) . '"' : '';
+    
+    // Get image URL if set
+    $image_url = '';
+    if ($image_id) {
+        $image_url = wp_get_attachment_image_url($image_id, 'large');
+    }
+    
+    ?>
+    <div class="<?php echo esc_attr(implode(' ', $hero_classes)); ?>" id="fwp-hero"<?php echo $hero_style_attr; ?>>
+        <?php if ($bg_image_id && $overlay_opacity > 0) : ?>
+            <div class="fwp-hero__overlay" style="opacity:<?php echo esc_attr($overlay_opacity / 100); ?>"></div>
+        <?php endif; ?>
+        
+        <div class="<?php echo esc_attr($container); ?> position-relative">
+            <div class="fwp-hero__inner py-5">
+                <?php if ($layout === 'centered') : ?>
+                    <!-- Centered Layout -->
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 text-center">
+                            <?php if ($subtitle) : ?>
+                                <p class="fwp-hero__subtitle lead fw-semibold mb-2"><?php echo wp_kses_post($subtitle); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($title) : ?>
+                                <h1 class="fwp-hero__title display-3 fw-bold mb-4"><?php echo wp_kses_post($title); ?></h1>
+                            <?php endif; ?>
+                            
+                            <?php if ($description) : ?>
+                                <p class="fwp-hero__description lead mb-4"><?php echo wp_kses_post($description); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($image_url) : ?>
+                                <div class="fwp-hero__image mb-4">
+                                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" class="img-fluid rounded shadow">
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($btn1_text || $btn2_text) : ?>
+                                <div class="fwp-hero__buttons d-flex gap-3 justify-content-center flex-wrap">
+                                    <?php if ($btn1_text) : ?>
+                                        <a href="<?php echo esc_url($btn1_url); ?>" class="btn btn-<?php echo esc_attr($btn1_style); ?> btn-lg">
+                                            <?php echo esc_html($btn1_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if ($btn2_text) : ?>
+                                        <a href="<?php echo esc_url($btn2_url); ?>" class="btn btn-<?php echo esc_attr($btn2_style); ?> btn-lg">
+                                            <?php echo esc_html($btn2_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                <?php elseif ($layout === 'left') : ?>
+                    <!-- Left Aligned Layout -->
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <?php if ($subtitle) : ?>
+                                <p class="fwp-hero__subtitle lead fw-semibold mb-2"><?php echo wp_kses_post($subtitle); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($title) : ?>
+                                <h1 class="fwp-hero__title display-3 fw-bold mb-4"><?php echo wp_kses_post($title); ?></h1>
+                            <?php endif; ?>
+                            
+                            <?php if ($description) : ?>
+                                <p class="fwp-hero__description lead mb-4"><?php echo wp_kses_post($description); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($btn1_text || $btn2_text) : ?>
+                                <div class="fwp-hero__buttons d-flex gap-3 flex-wrap">
+                                    <?php if ($btn1_text) : ?>
+                                        <a href="<?php echo esc_url($btn1_url); ?>" class="btn btn-<?php echo esc_attr($btn1_style); ?> btn-lg">
+                                            <?php echo esc_html($btn1_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if ($btn2_text) : ?>
+                                        <a href="<?php echo esc_url($btn2_url); ?>" class="btn btn-<?php echo esc_attr($btn2_style); ?> btn-lg">
+                                            <?php echo esc_html($btn2_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($image_url) : ?>
+                            <div class="col-lg-4 d-flex align-items-center mt-4 mt-lg-0">
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" class="img-fluid rounded shadow">
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                <?php elseif ($layout === 'split-left') : ?>
+                    <!-- Split Layout - Text Left / Image Right -->
+                    <div class="row align-items-center g-5">
+                        <div class="col-lg-6">
+                            <?php if ($subtitle) : ?>
+                                <p class="fwp-hero__subtitle lead fw-semibold mb-2"><?php echo wp_kses_post($subtitle); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($title) : ?>
+                                <h1 class="fwp-hero__title display-4 fw-bold mb-4"><?php echo wp_kses_post($title); ?></h1>
+                            <?php endif; ?>
+                            
+                            <?php if ($description) : ?>
+                                <p class="fwp-hero__description lead mb-4"><?php echo wp_kses_post($description); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($btn1_text || $btn2_text) : ?>
+                                <div class="fwp-hero__buttons d-flex gap-3 flex-wrap">
+                                    <?php if ($btn1_text) : ?>
+                                        <a href="<?php echo esc_url($btn1_url); ?>" class="btn btn-<?php echo esc_attr($btn1_style); ?> btn-lg">
+                                            <?php echo esc_html($btn1_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if ($btn2_text) : ?>
+                                        <a href="<?php echo esc_url($btn2_url); ?>" class="btn btn-<?php echo esc_attr($btn2_style); ?> btn-lg">
+                                            <?php echo esc_html($btn2_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($image_url) : ?>
+                            <div class="col-lg-6">
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" class="img-fluid rounded shadow">
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                <?php elseif ($layout === 'split-right') : ?>
+                    <!-- Split Layout - Image Left / Text Right -->
+                    <div class="row align-items-center g-5">
+                        <?php if ($image_url) : ?>
+                            <div class="col-lg-6 order-lg-1">
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" class="img-fluid rounded shadow">
+                            </div>
+                        <?php endif; ?>
+                        <div class="col-lg-6 order-lg-2">
+                            <?php if ($subtitle) : ?>
+                                <p class="fwp-hero__subtitle lead fw-semibold mb-2"><?php echo wp_kses_post($subtitle); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($title) : ?>
+                                <h1 class="fwp-hero__title display-4 fw-bold mb-4"><?php echo wp_kses_post($title); ?></h1>
+                            <?php endif; ?>
+                            
+                            <?php if ($description) : ?>
+                                <p class="fwp-hero__description lead mb-4"><?php echo wp_kses_post($description); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($btn1_text || $btn2_text) : ?>
+                                <div class="fwp-hero__buttons d-flex gap-3 flex-wrap">
+                                    <?php if ($btn1_text) : ?>
+                                        <a href="<?php echo esc_url($btn1_url); ?>" class="btn btn-<?php echo esc_attr($btn1_style); ?> btn-lg">
+                                            <?php echo esc_html($btn1_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if ($btn2_text) : ?>
+                                        <a href="<?php echo esc_url($btn2_url); ?>" class="btn btn-<?php echo esc_attr($btn2_style); ?> btn-lg">
+                                            <?php echo esc_html($btn2_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php
 }
 
 // =============================================================================

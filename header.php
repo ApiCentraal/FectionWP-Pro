@@ -415,8 +415,13 @@ if ( $navbar_sticky && $topbar_enabled && $topbar_content ) {
 </header>
 
 <?php
-// Hero widget area (indien widgets aanwezig)
-if (is_active_sidebar('hero')) : ?>
+// Render hero section from Customizer (if enabled)
+if (function_exists('fwp_render_hero')) {
+    fwp_render_hero();
+}
+
+// Hero widget area (indien widgets aanwezig en hero niet via Customizer)
+if (!get_theme_mod('fwp_hero_enabled', false) && is_active_sidebar('hero')) : ?>
 <div id="wrapper-hero" class="hero-wrapper">
     <div class="<?php echo esc_attr(fwp_get_container_type()); ?>">
         <?php dynamic_sidebar('hero'); ?>

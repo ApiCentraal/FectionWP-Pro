@@ -227,6 +227,279 @@ function fwp_customize_register($wp_customize) {
         'description' => __('Kleur voor logo/brand (vooral relevant bij tekst-logo). Laat leeg voor default.', 'fectionwp-pro'),
         'section'     => 'fwp_nav_settings',
     )));
+    
+    // =============================================================================
+    // SECTION: Site Title / Logo Styling
+    // =============================================================================
+    
+    $wp_customize->add_section('fwp_logo_styling', array(
+        'title'       => __('Site Titel / Logo Styling', 'fectionwp-pro'),
+        'description' => __('Pas de styling van de site titel (tekst logo) aan. Deze instellingen zijn alleen zichtbaar als er geen custom logo afbeelding is geüpload.', 'fectionwp-pro'),
+        'priority'    => 32,
+    ));
+    
+    // Site Title Font Family
+    $wp_customize->add_setting('fwp_site_title_font', array(
+        'default'           => '',
+        'sanitize_callback' => 'fwp_sanitize_font_choice',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_font', array(
+        'label'       => __('Lettertype', 'fectionwp-pro'),
+        'description' => __('Kies een lettertype voor de site titel. Laat leeg voor thema default.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'select',
+        'choices'     => $font_choices,
+    ));
+    
+    // Site Title Font Size
+    $wp_customize->add_setting('fwp_site_title_font_size', array(
+        'default'           => 24,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_font_size', array(
+        'label'       => __('Lettergrootte (px)', 'fectionwp-pro'),
+        'description' => __('Grootte van de site titel in pixels.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'range',
+        'input_attrs' => array(
+            'min'  => 12,
+            'max'  => 72,
+            'step' => 1,
+        ),
+    ));
+    
+    // Site Title Font Weight
+    $wp_customize->add_setting('fwp_site_title_font_weight', array(
+        'default'           => '700',
+        'sanitize_callback' => 'fwp_sanitize_font_weight',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_font_weight', array(
+        'label'       => __('Dikte', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'select',
+        'choices'     => array(
+            '300' => __('Light (300)', 'fectionwp-pro'),
+            '400' => __('Normal (400)', 'fectionwp-pro'),
+            '500' => __('Medium (500)', 'fectionwp-pro'),
+            '600' => __('Semi-Bold (600)', 'fectionwp-pro'),
+            '700' => __('Bold (700)', 'fectionwp-pro'),
+            '800' => __('Extra Bold (800)', 'fectionwp-pro'),
+            '900' => __('Black (900)', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Site Title Text Transform
+    $wp_customize->add_setting('fwp_site_title_text_transform', array(
+        'default'           => 'none',
+        'sanitize_callback' => 'fwp_sanitize_text_transform',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_text_transform', array(
+        'label'       => __('Tekst transformatie', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'select',
+        'choices'     => array(
+            'none'       => __('Geen', 'fectionwp-pro'),
+            'uppercase'  => __('HOOFDLETTERS', 'fectionwp-pro'),
+            'lowercase'  => __('kleine letters', 'fectionwp-pro'),
+            'capitalize' => __('Eerste Letter Hoofdletter', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Site Title Letter Spacing
+    $wp_customize->add_setting('fwp_site_title_letter_spacing', array(
+        'default'           => 0,
+        'sanitize_callback' => 'fwp_sanitize_letter_spacing',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_letter_spacing', array(
+        'label'       => __('Letter spacing (px)', 'fectionwp-pro'),
+        'description' => __('Ruimte tussen letters. 0 = normaal, negatieve waarden = dichter bij elkaar.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'range',
+        'input_attrs' => array(
+            'min'  => -5,
+            'max'  => 20,
+            'step' => 0.5,
+        ),
+    ));
+    
+    // Site Title Color (Main)
+    $wp_customize->add_setting('fwp_site_title_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_site_title_color', array(
+        'label'       => __('Tekst kleur', 'fectionwp-pro'),
+        'description' => __('Kleur voor de site titel. Laat leeg voor navbar default.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+    )));
+    
+    // Site Title Hover Color
+    $wp_customize->add_setting('fwp_site_title_hover_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_site_title_hover_color', array(
+        'label'       => __('Hover kleur', 'fectionwp-pro'),
+        'description' => __('Kleur wanneer de cursor over de titel beweegt.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+    )));
+    
+    // Site Title Background Color
+    $wp_customize->add_setting('fwp_site_title_bg_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_site_title_bg_color', array(
+        'label'       => __('Achtergrondkleur', 'fectionwp-pro'),
+        'description' => __('Optionele achtergrondkleur achter de titel (voor badge/button effect).', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+    )));
+    
+    // Site Title Padding
+    $wp_customize->add_setting('fwp_site_title_padding', array(
+        'default'           => 0,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_padding', array(
+        'label'       => __('Padding (px)', 'fectionwp-pro'),
+        'description' => __('Ruimte rondom de tekst (vooral nuttig met achtergrondkleur).', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'range',
+        'input_attrs' => array(
+            'min'  => 0,
+            'max'  => 30,
+            'step' => 1,
+        ),
+    ));
+    
+    // Site Title Border Radius
+    $wp_customize->add_setting('fwp_site_title_border_radius', array(
+        'default'           => 0,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_border_radius', array(
+        'label'       => __('Afronding hoeken (px)', 'fectionwp-pro'),
+        'description' => __('Ronde hoeken (vooral nuttig met achtergrondkleur).', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'range',
+        'input_attrs' => array(
+            'min'  => 0,
+            'max'  => 50,
+            'step' => 1,
+        ),
+    ));
+    
+    // Site Title Shadow
+    $wp_customize->add_setting('fwp_site_title_text_shadow', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_text_shadow', array(
+        'label'       => __('Tekst schaduw', 'fectionwp-pro'),
+        'description' => __('Voeg een subtiele schaduw toe aan de tekst.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'checkbox',
+    ));
+    
+    // Site Title Style Preset
+    $wp_customize->add_setting('fwp_site_title_preset', array(
+        'default'           => 'none',
+        'sanitize_callback' => 'fwp_sanitize_title_preset',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_preset', array(
+        'label'       => __('Stijl voorinstelling', 'fectionwp-pro'),
+        'description' => __('Kies een vooraf gedefinieerde stijl. Individuele instellingen overschrijven deze preset.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'select',
+        'choices'     => array(
+            'none'      => __('Geen (custom)', 'fectionwp-pro'),
+            'minimal'   => __('Minimalistisch', 'fectionwp-pro'),
+            'bold'      => __('Bold & Modern', 'fectionwp-pro'),
+            'elegant'   => __('Elegant', 'fectionwp-pro'),
+            'playful'   => __('Speels', 'fectionwp-pro'),
+            'badge'     => __('Badge stijl', 'fectionwp-pro'),
+            'outlined'  => __('Outlined', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Mobile specific settings
+    $wp_customize->add_setting('fwp_site_title_mobile_size', array(
+        'default'           => 0,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_site_title_mobile_size', array(
+        'label'       => __('Mobiele lettergrootte (px)', 'fectionwp-pro'),
+        'description' => __('Aparte grootte voor mobiel. Laat op 0 voor automatisch.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'range',
+        'input_attrs' => array(
+            'min'  => 0,
+            'max'  => 48,
+            'step' => 1,
+        ),
+    ));
+    
+    // Show tagline option
+    $wp_customize->add_setting('fwp_show_tagline', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control('fwp_show_tagline', array(
+        'label'       => __('Tagline tonen', 'fectionwp-pro'),
+        'description' => __('Toon de site tagline onder de titel.', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'checkbox',
+    ));
+    
+    // Tagline font size
+    $wp_customize->add_setting('fwp_tagline_font_size', array(
+        'default'           => 12,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_tagline_font_size', array(
+        'label'       => __('Tagline lettergrootte (px)', 'fectionwp-pro'),
+        'section'     => 'fwp_logo_styling',
+        'type'        => 'range',
+        'input_attrs' => array(
+            'min'  => 8,
+            'max'  => 24,
+            'step' => 1,
+        ),
+    ));
+    
+    // =============================================================================
+    // SECTION: Topbar Settings (existing section continues below)
+    // =============================================================================
 
     // =============================================================================
     // SECTION: Topbar / News bar
@@ -858,6 +1131,318 @@ function fwp_customize_register($wp_customize) {
             'step' => 5,
         ),
     ));
+    
+    // =============================================================================
+    // SECTION: Hero / Header Banner
+    // =============================================================================
+    
+    $wp_customize->add_section('fwp_hero_settings', array(
+        'title'       => __('Hero / Header Banner', 'fectionwp-pro'),
+        'description' => __('Configureer een vaste hero sectie die wordt getoond boven de hoofdcontent (na het menu).', 'fectionwp-pro'),
+        'priority'    => 35,
+    ));
+    
+    // Enable Hero Section
+    $wp_customize->add_setting('fwp_hero_enabled', array(
+        'default'           => false,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_enabled', array(
+        'label'       => __('Hero sectie activeren', 'fectionwp-pro'),
+        'description' => __('Toon een vaste hero sectie op alle pagina\'s (tenzij uitgeschakeld per pagina).', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'checkbox',
+    ));
+    
+    // Hero Display On
+    $wp_customize->add_setting('fwp_hero_display_on', array(
+        'default'           => 'all',
+        'sanitize_callback' => 'fwp_sanitize_hero_display',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_display_on', array(
+        'label'       => __('Hero tonen op', 'fectionwp-pro'),
+        'description' => __('Kies waar de hero sectie wordt getoond.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'all'       => __('Alle pagina\'s', 'fectionwp-pro'),
+            'frontpage' => __('Alleen homepage', 'fectionwp-pro'),
+            'pages'     => __('Alleen pagina\'s', 'fectionwp-pro'),
+            'posts'     => __('Alleen blog posts', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Hero Title
+    $wp_customize->add_setting('fwp_hero_title', array(
+        'default'           => __('Welkom op onze website', 'fectionwp-pro'),
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_title', array(
+        'label'       => __('Hero titel', 'fectionwp-pro'),
+        'description' => __('Hoofdtitel in de hero sectie. HTML toegestaan.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'textarea',
+    ));
+    
+    // Hero Subtitle
+    $wp_customize->add_setting('fwp_hero_subtitle', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_subtitle', array(
+        'label'       => __('Hero subtitel', 'fectionwp-pro'),
+        'description' => __('Optionele subtitel boven de hoofdtitel.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+    ));
+    
+    // Hero Description
+    $wp_customize->add_setting('fwp_hero_description', array(
+        'default'           => __('Ontdek wat wij voor u kunnen betekenen', 'fectionwp-pro'),
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_description', array(
+        'label'       => __('Hero beschrijving', 'fectionwp-pro'),
+        'description' => __('Beschrijvende tekst onder de titel.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'textarea',
+    ));
+    
+    // Hero CTA Button 1 - Text
+    $wp_customize->add_setting('fwp_hero_btn1_text', array(
+        'default'           => __('Meer informatie', 'fectionwp-pro'),
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_btn1_text', array(
+        'label'       => __('CTA Button 1 - Tekst', 'fectionwp-pro'),
+        'description' => __('Tekst voor de primaire call-to-action button. Laat leeg om te verbergen.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+    ));
+    
+    // Hero CTA Button 1 - URL
+    $wp_customize->add_setting('fwp_hero_btn1_url', array(
+        'default'           => '#',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_btn1_url', array(
+        'label'       => __('CTA Button 1 - URL', 'fectionwp-pro'),
+        'description' => __('Link voor de primaire button.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'url',
+    ));
+    
+    // Hero CTA Button 1 - Style
+    $wp_customize->add_setting('fwp_hero_btn1_style', array(
+        'default'           => 'primary',
+        'sanitize_callback' => 'fwp_sanitize_button_style',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_btn1_style', array(
+        'label'       => __('CTA Button 1 - Stijl', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'primary'   => __('Primary', 'fectionwp-pro'),
+            'secondary' => __('Secondary', 'fectionwp-pro'),
+            'success'   => __('Success', 'fectionwp-pro'),
+            'danger'    => __('Danger', 'fectionwp-pro'),
+            'warning'   => __('Warning', 'fectionwp-pro'),
+            'info'      => __('Info', 'fectionwp-pro'),
+            'light'     => __('Light', 'fectionwp-pro'),
+            'dark'      => __('Dark', 'fectionwp-pro'),
+            'outline-primary' => __('Outline Primary', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Hero CTA Button 2 - Text
+    $wp_customize->add_setting('fwp_hero_btn2_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_btn2_text', array(
+        'label'       => __('CTA Button 2 - Tekst', 'fectionwp-pro'),
+        'description' => __('Tekst voor de secundaire button (optioneel).', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+    ));
+    
+    // Hero CTA Button 2 - URL
+    $wp_customize->add_setting('fwp_hero_btn2_url', array(
+        'default'           => '#',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_btn2_url', array(
+        'label'       => __('CTA Button 2 - URL', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'url',
+    ));
+    
+    // Hero CTA Button 2 - Style
+    $wp_customize->add_setting('fwp_hero_btn2_style', array(
+        'default'           => 'outline-primary',
+        'sanitize_callback' => 'fwp_sanitize_button_style',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_btn2_style', array(
+        'label'       => __('CTA Button 2 - Stijl', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'primary'   => __('Primary', 'fectionwp-pro'),
+            'secondary' => __('Secondary', 'fectionwp-pro'),
+            'outline-primary'   => __('Outline Primary', 'fectionwp-pro'),
+            'outline-secondary' => __('Outline Secondary', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Hero Featured Image
+    $wp_customize->add_setting('fwp_hero_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'fwp_hero_image', array(
+        'label'       => __('Hero afbeelding', 'fectionwp-pro'),
+        'description' => __('Optionele afbeelding naast de tekst (rechts of links afhankelijk van layout).', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'mime_type'   => 'image',
+    )));
+    
+    // Hero Background Image
+    $wp_customize->add_setting('fwp_hero_bg_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'fwp_hero_bg_image', array(
+        'label'       => __('Hero achtergrond afbeelding', 'fectionwp-pro'),
+        'description' => __('Achtergrond afbeelding voor de hele hero sectie.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'mime_type'   => 'image',
+    )));
+    
+    // Hero Background Color
+    $wp_customize->add_setting('fwp_hero_bg_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_hero_bg_color', array(
+        'label'       => __('Hero achtergrondkleur', 'fectionwp-pro'),
+        'description' => __('Laat leeg voor transparant/standaard thema achtergrond.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+    )));
+    
+    // Hero Text Color
+    $wp_customize->add_setting('fwp_hero_text_color', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'fwp_hero_text_color', array(
+        'label'       => __('Hero tekstkleur', 'fectionwp-pro'),
+        'description' => __('Kleur voor de hero tekst. Laat leeg voor standaard.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+    )));
+    
+    // Hero Height
+    $wp_customize->add_setting('fwp_hero_height', array(
+        'default'           => 'medium',
+        'sanitize_callback' => 'fwp_sanitize_hero_height',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_height', array(
+        'label'       => __('Hero hoogte', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'small'    => __('Klein (300px)', 'fectionwp-pro'),
+            'medium'   => __('Gemiddeld (500px)', 'fectionwp-pro'),
+            'large'    => __('Groot (700px)', 'fectionwp-pro'),
+            'full'     => __('Volledig scherm', 'fectionwp-pro'),
+            'auto'     => __('Automatisch (inhoud bepaalt)', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Hero Layout
+    $wp_customize->add_setting('fwp_hero_layout', array(
+        'default'           => 'centered',
+        'sanitize_callback' => 'fwp_sanitize_hero_layout',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_layout', array(
+        'label'       => __('Hero layout', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'centered'    => __('Gecentreerd', 'fectionwp-pro'),
+            'left'        => __('Links uitgelijnd', 'fectionwp-pro'),
+            'split-left'  => __('Split - Tekst links / Afbeelding rechts', 'fectionwp-pro'),
+            'split-right' => __('Split - Afbeelding links / Tekst rechts', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Hero Container Type
+    $wp_customize->add_setting('fwp_hero_container', array(
+        'default'           => 'container',
+        'sanitize_callback' => 'fwp_sanitize_container_type',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_container', array(
+        'label'       => __('Hero container type', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'choices'     => array(
+            'container'       => __('Container (vast)', 'fectionwp-pro'),
+            'container-fluid' => __('Container Fluid (volledig)', 'fectionwp-pro'),
+            'container-xxl'   => __('Container XXL', 'fectionwp-pro'),
+        ),
+    ));
+    
+    // Hero Overlay Opacity (for background images)
+    $wp_customize->add_setting('fwp_hero_overlay_opacity', array(
+        'default'           => 50,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'postMessage',
+    ));
+    
+    $wp_customize->add_control('fwp_hero_overlay_opacity', array(
+        'label'       => __('Achtergrond overlay opacity', 'fectionwp-pro'),
+        'description' => __('Donkere overlay over de achtergrondafbeelding (0-100%). Alleen van toepassing als achtergrond afbeelding is ingesteld.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'range',
+        'input_attrs' => array(
+            'min'  => 0,
+            'max'  => 100,
+            'step' => 5,
+        ),
+    ));
 }
 add_action('customize_register', 'fwp_customize_register');
 
@@ -995,6 +1580,70 @@ function fwp_sanitize_topbar_font_size($input) {
  */
 function fwp_sanitize_checkbox($input) {
     return (bool) $input;
+}
+
+/**
+ * Sanitize hero display options
+ */
+function fwp_sanitize_hero_display($input) {
+    $valid = array('all', 'frontpage', 'pages', 'posts');
+    return in_array($input, $valid, true) ? $input : 'all';
+}
+
+/**
+ * Sanitize hero height
+ */
+function fwp_sanitize_hero_height($input) {
+    $valid = array('small', 'medium', 'large', 'full', 'auto');
+    return in_array($input, $valid, true) ? $input : 'medium';
+}
+
+/**
+ * Sanitize hero layout
+ */
+function fwp_sanitize_hero_layout($input) {
+    $valid = array('centered', 'left', 'split-left', 'split-right');
+    return in_array($input, $valid, true) ? $input : 'centered';
+}
+
+/**
+ * Sanitize button style
+ */
+function fwp_sanitize_button_style($input) {
+    $valid = array('primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark', 'outline-primary', 'outline-secondary');
+    return in_array($input, $valid, true) ? $input : 'primary';
+}
+
+/**
+ * Sanitize font weight
+ */
+function fwp_sanitize_font_weight($input) {
+    $valid = array('300', '400', '500', '600', '700', '800', '900');
+    return in_array($input, $valid, true) ? $input : '400';
+}
+
+/**
+ * Sanitize text transform
+ */
+function fwp_sanitize_text_transform($input) {
+    $valid = array('none', 'uppercase', 'lowercase', 'capitalize');
+    return in_array($input, $valid, true) ? $input : 'none';
+}
+
+/**
+ * Sanitize letter spacing
+ */
+function fwp_sanitize_letter_spacing($input) {
+    $val = floatval($input);
+    return ($val >= -5 && $val <= 20) ? $val : 0;
+}
+
+/**
+ * Sanitize title preset
+ */
+function fwp_sanitize_title_preset($input) {
+    $valid = array('none', 'minimal', 'bold', 'elegant', 'playful', 'badge', 'outlined');
+    return in_array($input, $valid, true) ? $input : 'none';
 }
 
 /**
