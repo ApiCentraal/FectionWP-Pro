@@ -72,3 +72,13 @@ defined( 'ABSPATH' ) || exit;
     </div>
   </div>
 </section>
+
+<?php
+// Additional TFFP sections (reusable blocks).
+get_template_part( 'template-parts/tffp/cta' );
+get_template_part( 'template-parts/tffp/quote' );
+get_template_part( 'template-parts/tffp/features' );
+get_template_part( 'template-parts/tffp/pricing' );
+get_template_part( 'template-parts/tffp/faq' );
+get_template_part( 'template-parts/tffp/newsletter' );
+?>

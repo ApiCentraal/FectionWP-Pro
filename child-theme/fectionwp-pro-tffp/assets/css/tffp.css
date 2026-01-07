@@ -48,14 +48,26 @@
 .tffp-hero,
 .tffp-stats,
 .tffp-testimonials,
-.tffp-locations {
+.tffp-locations,
+.tffp-newsletter,
+.tffp-quote,
+.tffp-cta,
+.tffp-faq,
+.tffp-features,
+.tffp-pricing {
   font-family: var(--tffp-section-font, var(--tffp-font-body));
 }
 
 .tffp-hero :is(h1, h2, h3, h4, h5, h6),
 .tffp-stats :is(h1, h2, h3, h4, h5, h6),
 .tffp-testimonials :is(h1, h2, h3, h4, h5, h6),
-.tffp-locations :is(h1, h2, h3, h4, h5, h6) {
+.tffp-locations :is(h1, h2, h3, h4, h5, h6),
+.tffp-newsletter :is(h1, h2, h3, h4, h5, h6),
+.tffp-quote :is(h1, h2, h3, h4, h5, h6),
+.tffp-cta :is(h1, h2, h3, h4, h5, h6),
+.tffp-faq :is(h1, h2, h3, h4, h5, h6),
+.tffp-features :is(h1, h2, h3, h4, h5, h6),
+.tffp-pricing :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--tffp-section-heading-font, var(--tffp-font-heading));
 }
 
