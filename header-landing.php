@@ -76,6 +76,7 @@
         }
         
         /* First hero section padding for navbar */
+        #wrapper-navbar + #fwp-hero,
         .landing-content > *:first-child {
             padding-top: 80px;
         }
@@ -394,6 +395,24 @@
         </div>
     </nav>
 </header>
+
+<?php
+// Render hero section from Customizer (if enabled)
+$fwp_render_hero_in_landing = (bool) get_theme_mod('fwp_hero_render_in_landing_header', true);
+$fwp_render_hero_in_landing = (bool) apply_filters('fwp_render_hero_in_header', $fwp_render_hero_in_landing, 'landing');
+
+if ($fwp_render_hero_in_landing && function_exists('fwp_render_hero')) {
+    fwp_render_hero();
+}
+
+// Hero widget area (indien widgets aanwezig en hero niet via Customizer)
+if (!get_theme_mod('fwp_hero_enabled', false) && is_active_sidebar('hero')) : ?>
+<div id="wrapper-hero" class="hero-wrapper">
+    <div class="<?php echo esc_attr(fwp_get_container_type()); ?>">
+        <?php dynamic_sidebar('hero'); ?>
+    </div>
+</div>
+<?php endif; ?>
 
 <main class="site-main" id="main" role="main">
 

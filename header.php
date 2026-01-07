@@ -416,7 +416,10 @@ if ( $navbar_sticky && $topbar_enabled && $topbar_content ) {
 
 <?php
 // Render hero section from Customizer (if enabled)
-if (function_exists('fwp_render_hero')) {
+$fwp_render_hero_in_default = (bool) get_theme_mod('fwp_hero_render_in_default_header', true);
+$fwp_render_hero_in_default = (bool) apply_filters('fwp_render_hero_in_header', $fwp_render_hero_in_default, 'default');
+
+if ($fwp_render_hero_in_default && function_exists('fwp_render_hero')) {
     fwp_render_hero();
 }
 

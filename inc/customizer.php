@@ -1177,6 +1177,36 @@ function fwp_customize_register($wp_customize) {
             'posts'     => __('Alleen blog posts', 'fectionwp-pro'),
         ),
     ));
+
+    // Render hero in landing header (header-landing.php)
+    $wp_customize->add_setting('fwp_hero_render_in_landing_header', array(
+        'default'           => true,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_hero_render_in_landing_header', array(
+        'label'       => __('Hero tonen in landing header', 'fectionwp-pro'),
+        'description' => __('Alleen van toepassing op templates die de landing header gebruiken (zoals Landing/Demo). Zet dit uit als je daar een eigen hero/intro gebruikt en dubbele content wilt voorkomen.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'checkbox',
+        'priority'    => 3,
+    ));
+
+    // Render hero in default header (header.php)
+    $wp_customize->add_setting('fwp_hero_render_in_default_header', array(
+        'default'           => true,
+        'sanitize_callback' => 'fwp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_hero_render_in_default_header', array(
+        'label'       => __('Hero tonen in standaard header', 'fectionwp-pro'),
+        'description' => __('Alleen van toepassing op templates die de standaard header gebruiken. Zet dit uit als je elders (bijv. per template) zelf een hero/intro in de content renderert en dubbele content wilt voorkomen.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'checkbox',
+        'priority'    => 4,
+    ));
     
     // Hero Title
     $wp_customize->add_setting('fwp_hero_title', array(
