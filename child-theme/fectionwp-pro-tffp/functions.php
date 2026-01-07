@@ -5,6 +5,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+function tffp_sanitize_checkbox( $value ): bool {
+    return (bool) $value;
+}
+
 function tffp_font_choices(): array {
     return array(
         '' => __( 'Standaard (theme)', 'fectionwp-pro-tffp' ),
@@ -154,6 +158,21 @@ add_action( 'after_setup_theme', function () {
     ) );
 }, 20 );
 
+// Prevent duplicate hero output: TFFP uses its own hero sections on key pages.
+add_filter( 'fwp_render_hero_in_header', function ( $enabled, $context ) {
+    if ( 'landing' === $context ) {
+        $disable_parent_hero = (bool) get_theme_mod( 'tffp_disable_parent_hero_in_landing_header', true );
+        return $disable_parent_hero ? false : $enabled;
+    }
+
+    if ( 'default' === $context ) {
+        $disable_parent_hero = (bool) get_theme_mod( 'tffp_disable_parent_hero_in_default_header', false );
+        return $disable_parent_hero ? false : $enabled;
+    }
+
+    return $enabled;
+}, 10, 2 );
+
 /**
  * Ensure the custom page templates are selectable in wp-admin.
  *
@@ -212,6 +231,39 @@ add_action( 'admin_notices', function () {
  * Keep it minimal: WhatsApp number + default message + contact email/phone.
  */
 add_action( 'customize_register', function ( $wp_customize ) {
+    $wp_customize->add_section( 'tffp_header', array(
+        'title'    => __( 'TFFP Header', 'fectionwp-pro-tffp' ),
+        'priority' => 161,
+    ) );
+
+    $wp_customize->add_setting( 'tffp_disable_parent_hero_in_landing_header', array(
+        'default'           => true,
+        'sanitize_callback' => 'tffp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ) );
+
+    $wp_customize->add_control( 'tffp_disable_parent_hero_in_landing_header', array(
+        'label'       => __( 'Hero tonen in landing header', 'fectionwp-pro-tffp' ),
+        'description' => __( 'Toont de hero uit de parent Customizer ook op templates met de landing header. Zet dit uit als je een eigen hero/intro gebruikt en dubbele content wilt voorkomen.', 'fectionwp-pro-tffp' ),
+        'section'     => 'tffp_header',
+        'type'        => 'checkbox',
+        'priority'    => 10,
+    ) );
+
+    $wp_customize->add_setting( 'tffp_disable_parent_hero_in_default_header', array(
+        'default'           => false,
+        'sanitize_callback' => 'tffp_sanitize_checkbox',
+        'transport'         => 'refresh',
+    ) );
+
+    $wp_customize->add_control( 'tffp_disable_parent_hero_in_default_header', array(
+        'label'       => __( 'Hero tonen in standaard header', 'fectionwp-pro-tffp' ),
+        'description' => __( 'Toont de hero uit de parent Customizer ook op templates met de standaard header. Zet dit uit als je een eigen hero/intro gebruikt en dubbele content wilt voorkomen.', 'fectionwp-pro-tffp' ),
+        'section'     => 'tffp_header',
+        'type'        => 'checkbox',
+        'priority'    => 20,
+    ) );
+
     $wp_customize->add_section( 'tffp_contact', array(
         'title'    => __( 'TFFP Contact', 'fectionwp-pro-tffp' ),
         'priority' => 160,
