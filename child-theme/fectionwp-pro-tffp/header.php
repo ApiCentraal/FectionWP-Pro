@@ -417,7 +417,17 @@ if ( ! $is_tffp_fullwidth ) {
     <?php endif; ?>
 </header>
 
-<?php if ( is_active_sidebar( 'hero' ) ) : ?>
+<?php
+// Render hero section from Customizer (if enabled)
+$fwp_render_hero_in_default = (bool) get_theme_mod( 'fwp_hero_render_in_default_header', true );
+$fwp_render_hero_in_default = (bool) apply_filters( 'fwp_render_hero_in_header', $fwp_render_hero_in_default, 'default' );
+
+if ( $fwp_render_hero_in_default && function_exists( 'fwp_render_hero' ) ) {
+    fwp_render_hero();
+}
+
+// Hero widget area (fallback) (indien widgets aanwezig en hero niet via Customizer)
+if ( ! get_theme_mod( 'fwp_hero_enabled', false ) && is_active_sidebar( 'hero' ) ) : ?>
     <div id="wrapper-hero" class="hero-wrapper">
         <div class="<?php echo esc_attr( $container ); ?>">
             <?php dynamic_sidebar( 'hero' ); ?>
