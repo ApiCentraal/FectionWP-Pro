@@ -14,7 +14,6 @@ __pycache__/
 
 # Release artifacts
 dist/
-releases/*.zip
 
 # WordPress
 wp-config.php
