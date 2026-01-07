@@ -1139,7 +1139,7 @@ function fwp_customize_register($wp_customize) {
     $wp_customize->add_section('fwp_hero_settings', array(
         'title'       => __('Hero / Header Banner', 'fectionwp-pro'),
         'description' => __('Configureer een vaste hero sectie die wordt getoond boven de hoofdcontent (na het menu).', 'fectionwp-pro'),
-        'priority'    => 35,
+        'priority'    => 29,
     ));
     
     // Enable Hero Section
@@ -1154,6 +1154,7 @@ function fwp_customize_register($wp_customize) {
         'description' => __('Toon een vaste hero sectie op alle pagina\'s (tenzij uitgeschakeld per pagina).', 'fectionwp-pro'),
         'section'     => 'fwp_hero_settings',
         'type'        => 'checkbox',
+        'priority'    => 1,
     ));
     
     // Hero Display On
@@ -1168,6 +1169,7 @@ function fwp_customize_register($wp_customize) {
         'description' => __('Kies waar de hero sectie wordt getoond.', 'fectionwp-pro'),
         'section'     => 'fwp_hero_settings',
         'type'        => 'select',
+        'priority'    => 2,
         'choices'     => array(
             'all'       => __('Alle pagina\'s', 'fectionwp-pro'),
             'frontpage' => __('Alleen homepage', 'fectionwp-pro'),
