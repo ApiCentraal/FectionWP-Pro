@@ -1207,6 +1207,278 @@ function fwp_customize_register($wp_customize) {
         'type'        => 'checkbox',
         'priority'    => 4,
     ));
+
+    // Hero Type
+    $wp_customize->add_setting('fwp_hero_type', array(
+        'default'           => 'standard',
+        'sanitize_callback' => function ( $value ) {
+            $value = is_string( $value ) ? $value : '';
+            return in_array( $value, array( 'standard', 'carousel' ), true ) ? $value : 'standard';
+        },
+        'transport'         => 'refresh',
+    ));
+
+    $wp_customize->add_control('fwp_hero_type', array(
+        'label'       => __('Hero type', 'fectionwp-pro'),
+        'description' => __('Kies het type hero: standaard hero of Bootstrap carrousel.', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'priority'    => 5,
+        'choices'     => array(
+            'standard' => __('Standaard', 'fectionwp-pro'),
+            'carousel' => __('Carrousel (Bootstrap)', 'fectionwp-pro'),
+        ),
+    ));
+
+    // Carousel slides (global defaults)
+    $wp_customize->add_setting('fwp_hero_carousel_slide1_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'fwp_hero_carousel_slide1_image', array(
+        'label'       => __('Carrousel slide 1 - Afbeelding', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'mime_type'   => 'image',
+        'priority'    => 40,
+    )));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide1_heading', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide1_heading', array(
+        'label'       => __('Carrousel slide 1 - Titel', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+        'priority'    => 41,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide1_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide1_text', array(
+        'label'       => __('Carrousel slide 1 - Tekst', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'textarea',
+        'priority'    => 42,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide1_btn_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide1_btn_text', array(
+        'label'       => __('Carrousel slide 1 - Button tekst', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+        'priority'    => 43,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide1_btn_url', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide1_btn_url', array(
+        'label'       => __('Carrousel slide 1 - Button URL', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'url',
+        'priority'    => 44,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide1_btn_style', array(
+        'default'           => 'primary',
+        'sanitize_callback' => 'fwp_sanitize_button_style',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide1_btn_style', array(
+        'label'       => __('Carrousel slide 1 - Button stijl', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'priority'    => 45,
+        'choices'     => array(
+            'primary'   => __('Primary', 'fectionwp-pro'),
+            'secondary' => __('Secondary', 'fectionwp-pro'),
+            'success'   => __('Success', 'fectionwp-pro'),
+            'danger'    => __('Danger', 'fectionwp-pro'),
+            'warning'   => __('Warning', 'fectionwp-pro'),
+            'info'      => __('Info', 'fectionwp-pro'),
+            'light'     => __('Light', 'fectionwp-pro'),
+            'dark'      => __('Dark', 'fectionwp-pro'),
+            'outline-primary' => __('Outline Primary', 'fectionwp-pro'),
+            'outline-secondary' => __('Outline Secondary', 'fectionwp-pro'),
+        ),
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide2_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'fwp_hero_carousel_slide2_image', array(
+        'label'       => __('Carrousel slide 2 - Afbeelding', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'mime_type'   => 'image',
+        'priority'    => 50,
+    )));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide2_heading', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide2_heading', array(
+        'label'       => __('Carrousel slide 2 - Titel', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+        'priority'    => 51,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide2_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide2_text', array(
+        'label'       => __('Carrousel slide 2 - Tekst', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'textarea',
+        'priority'    => 52,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide2_btn_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide2_btn_text', array(
+        'label'       => __('Carrousel slide 2 - Button tekst', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+        'priority'    => 53,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide2_btn_url', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide2_btn_url', array(
+        'label'       => __('Carrousel slide 2 - Button URL', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'url',
+        'priority'    => 54,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide2_btn_style', array(
+        'default'           => 'primary',
+        'sanitize_callback' => 'fwp_sanitize_button_style',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide2_btn_style', array(
+        'label'       => __('Carrousel slide 2 - Button stijl', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'priority'    => 55,
+        'choices'     => array(
+            'primary'   => __('Primary', 'fectionwp-pro'),
+            'secondary' => __('Secondary', 'fectionwp-pro'),
+            'success'   => __('Success', 'fectionwp-pro'),
+            'danger'    => __('Danger', 'fectionwp-pro'),
+            'warning'   => __('Warning', 'fectionwp-pro'),
+            'info'      => __('Info', 'fectionwp-pro'),
+            'light'     => __('Light', 'fectionwp-pro'),
+            'dark'      => __('Dark', 'fectionwp-pro'),
+            'outline-primary' => __('Outline Primary', 'fectionwp-pro'),
+            'outline-secondary' => __('Outline Secondary', 'fectionwp-pro'),
+        ),
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide3_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'fwp_hero_carousel_slide3_image', array(
+        'label'       => __('Carrousel slide 3 - Afbeelding', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'mime_type'   => 'image',
+        'priority'    => 60,
+    )));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide3_heading', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide3_heading', array(
+        'label'       => __('Carrousel slide 3 - Titel', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+        'priority'    => 61,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide3_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide3_text', array(
+        'label'       => __('Carrousel slide 3 - Tekst', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'textarea',
+        'priority'    => 62,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide3_btn_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide3_btn_text', array(
+        'label'       => __('Carrousel slide 3 - Button tekst', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'text',
+        'priority'    => 63,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide3_btn_url', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide3_btn_url', array(
+        'label'       => __('Carrousel slide 3 - Button URL', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'url',
+        'priority'    => 64,
+    ));
+
+    $wp_customize->add_setting('fwp_hero_carousel_slide3_btn_style', array(
+        'default'           => 'primary',
+        'sanitize_callback' => 'fwp_sanitize_button_style',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control('fwp_hero_carousel_slide3_btn_style', array(
+        'label'       => __('Carrousel slide 3 - Button stijl', 'fectionwp-pro'),
+        'section'     => 'fwp_hero_settings',
+        'type'        => 'select',
+        'priority'    => 65,
+        'choices'     => array(
+            'primary'   => __('Primary', 'fectionwp-pro'),
+            'secondary' => __('Secondary', 'fectionwp-pro'),
+            'success'   => __('Success', 'fectionwp-pro'),
+            'danger'    => __('Danger', 'fectionwp-pro'),
+            'warning'   => __('Warning', 'fectionwp-pro'),
+            'info'      => __('Info', 'fectionwp-pro'),
+            'light'     => __('Light', 'fectionwp-pro'),
+            'dark'      => __('Dark', 'fectionwp-pro'),
+            'outline-primary' => __('Outline Primary', 'fectionwp-pro'),
+            'outline-secondary' => __('Outline Secondary', 'fectionwp-pro'),
+        ),
+    ));
     
     // Hero Title
     $wp_customize->add_setting('fwp_hero_title', array(
