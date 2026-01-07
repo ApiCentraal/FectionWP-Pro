@@ -25,9 +25,9 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_CONFIG_EXTRA: |
-        define('WP_DEBUG', true);
-        define('WP_DEBUG_LOG', true);
-        define('WP_DEBUG_DISPLAY', false);
+        if (!defined('WP_DEBUG')) define('WP_DEBUG', true);
+        if (!defined('WP_DEBUG_LOG')) define('WP_DEBUG_LOG', true);
+        if (!defined('WP_DEBUG_DISPLAY')) define('WP_DEBUG_DISPLAY', false);
     volumes:
       # Live theme editing: mount this repo as a theme folder in WordPress.
       - ./:/var/www/html/wp-content/themes/fectionwp-pro
