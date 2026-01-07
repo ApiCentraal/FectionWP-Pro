@@ -9,15 +9,6 @@ Author: ApiCentraal <help@apicentraal.nl>
 ## Doel
 
 FectionWP Pro is een professioneel WordPress-thema gericht op flexibele sites met een visuele builder, blocks en boekingsfunctionaliteit. Het thema is bedoeld om samen te werken met de bijbehorende plugins om volledige functionaliteit te bieden.
-# FectionWP Pro
-
-Dit repository bevat het FectionWP Pro WordPress-thema, ontwikkeld en onderhouden door ApiCentraal.
-
-Repository: https://github.com/ApiCentraal/FectionWP-Pro
-
-Author: ApiCentraal <help@apicentraal.nl>
-
-## Doel
 
 FectionWP Pro is een flexibel, enterprise-ready WordPress-thema gericht op:
 - Visuele sitebouw met een krachtige page-builder
@@ -69,6 +60,19 @@ Voor ontwikkelworkflows lokaal:
 # composer install    # alleen indien composer.json aanwezig is
 # npm install         # alleen indien package.json aanwezig is
 ```
+
+## Lokale development (Docker)
+
+Voor live theme-editing is er een `docker-compose.yml` toegevoegd (WordPress + MariaDB). Het theme wordt als volume gemount, dus wijzigingen in deze repo zijn direct zichtbaar.
+
+```bash
+docker compose up -d
+```
+
+- Admin: `http://localhost:8080/wp-admin/`
+- Site: `http://localhost:8080/`
+
+Eerste keer: rond de WordPress install af en activeer daarna het theme **FectionWP Pro** (folder: `fectionwp-pro`).
 
 ## Folderstructuur (hoog niveau)
 
@@ -138,23 +142,4 @@ Voor vragen of ondersteuning: help@apicentraal.nl
 ## Licentie
 
 Controleer de header in `style.css` voor licentie-informatie. Voorbijdragen via pull requests tegen `main`.
-
-## Local Docker development
-
-This repository can be developed together with a local WordPress compose setup. A convenience `docker-compose.yml` and `.env.example` live in the sibling folder `../FectionWP` for local theme testing.
-
-Quick start (from `/home/x/Applicaties - FectionLabs/FectionWP`):
-
-```bash
-# copy example env and edit secrets
-cp .env.example .env
-# start containers
-docker compose up -d
-# open WordPress at http://localhost:8000 and phpMyAdmin at http://localhost:8080
-```
-
-Notes:
-- Do NOT commit a real `.env` with secrets. Use `.env.example` as the template.
-- `docker-compose.yml` reads values from `.env` (`MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, etc.).
-- If you want the compose file inside this repo, copy `../FectionWP/docker-compose.yml` here and adapt paths.
 
