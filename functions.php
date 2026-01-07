@@ -691,6 +691,141 @@ function fwp_site_info() {
 // =============================================================================
 
 /**
+ * Build global (Customizer) carousel slides.
+ */
+function fwp_get_global_hero_carousel_slides(): array {
+    $slides = array();
+
+    for ($i = 1; $i <= 3; $i++) {
+        $image_id = (int) get_theme_mod('fwp_hero_carousel_slide' . $i . '_image', 0);
+        $image_url = '';
+        if ($image_id) {
+            $image_url = (string) wp_get_attachment_image_url($image_id, 'full');
+        }
+
+        $heading = (string) get_theme_mod('fwp_hero_carousel_slide' . $i . '_heading', '');
+        $text = (string) get_theme_mod('fwp_hero_carousel_slide' . $i . '_text', '');
+        $btn_text = (string) get_theme_mod('fwp_hero_carousel_slide' . $i . '_btn_text', '');
+        $btn_url = (string) get_theme_mod('fwp_hero_carousel_slide' . $i . '_btn_url', '');
+        $btn_style = (string) get_theme_mod('fwp_hero_carousel_slide' . $i . '_btn_style', 'primary');
+
+        if (!$image_url && $heading === '' && $text === '' && $btn_text === '' && $btn_url === '') {
+            continue;
+        }
+
+        $slides[] = array(
+            'image_url' => $image_url,
+            'heading'   => $heading,
+            'text'      => $text,
+            'btn_text'  => $btn_text,
+            'btn_url'   => $btn_url,
+            'btn_style' => $btn_style,
+        );
+    }
+
+    return $slides;
+}
+
+/**
+ * Parse per-page carousel slides from JSON stored in post meta.
+ *
+ * Expected format:
+ * [
+ *   {"image_id":123,"image_url":"https://...","heading":"...","text":"...","btn_text":"...","btn_url":"...","btn_style":"primary"}
+ * ]
+ */
+function fwp_parse_hero_carousel_slides_json(string $json): array {
+    $json = trim($json);
+    if ($json === '') {
+        return array();
+    }
+
+    $decoded = json_decode($json, true);
+    if (!is_array($decoded)) {
+        return array();
+    }
+
+    $slides = array();
+    $allowed_btn_styles = array(
+        'primary',
+        'secondary',
+        'success',
+        'danger',
+        'warning',
+        'info',
+        'light',
+        'dark',
+        'outline-primary',
+        'outline-secondary',
+    );
+
+    foreach ($decoded as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+
+        $image_url = '';
+        $image_id = isset($item['image_id']) ? absint($item['image_id']) : 0;
+        if ($image_id) {
+            $maybe_url = wp_get_attachment_image_url($image_id, 'full');
+            if (is_string($maybe_url) && $maybe_url !== '') {
+                $image_url = $maybe_url;
+            }
+        }
+
+        if ($image_url === '' && isset($item['image_url'])) {
+            $maybe_url = esc_url_raw((string) $item['image_url']);
+            if ($maybe_url !== '') {
+                $image_url = $maybe_url;
+            }
+        }
+
+        $heading = isset($item['heading']) ? (string) $item['heading'] : '';
+        $text = isset($item['text']) ? (string) $item['text'] : '';
+        $btn_text = isset($item['btn_text']) ? sanitize_text_field((string) $item['btn_text']) : '';
+        $btn_url = isset($item['btn_url']) ? esc_url_raw((string) $item['btn_url']) : '';
+        $btn_style = isset($item['btn_style']) ? (string) $item['btn_style'] : 'primary';
+        if (!in_array($btn_style, $allowed_btn_styles, true)) {
+            $btn_style = 'primary';
+        }
+
+        if ($image_url === '' && $heading === '' && $text === '' && $btn_text === '' && $btn_url === '') {
+            continue;
+        }
+
+        $slides[] = array(
+            'image_url' => $image_url,
+            'heading'   => $heading,
+            'text'      => $text,
+            'btn_text'  => $btn_text,
+            'btn_url'   => $btn_url,
+            'btn_style' => $btn_style,
+        );
+
+        if (count($slides) >= 10) {
+            break;
+        }
+    }
+
+    return $slides;
+}
+
+/**
+ * Get effective carousel slides (per-page JSON if present, otherwise global Customizer slides).
+ */
+function fwp_get_effective_hero_carousel_slides(int $post_id = 0): array {
+    if ($post_id) {
+        $json = (string) get_post_meta($post_id, '_fwp_hero_carousel_slides_json', true);
+        $slides = fwp_parse_hero_carousel_slides_json($json);
+        if (!empty($slides)) {
+            return $slides;
+        }
+    }
+
+    return fwp_get_global_hero_carousel_slides();
+}
+
+/**
  * Check if hero section should be displayed
  */
 function fwp_should_display_hero() {
@@ -750,6 +885,8 @@ function fwp_hero_meta_box_callback($post) {
     wp_nonce_field('fwp_hero_meta_box', 'fwp_hero_meta_box_nonce');
     
     $disable_hero = get_post_meta($post->ID, '_fwp_disable_hero', true);
+    $hero_variant = get_post_meta($post->ID, '_fwp_hero_variant', true);
+    $carousel_slides_json = get_post_meta($post->ID, '_fwp_hero_carousel_slides_json', true);
     
     ?>
     <p>
@@ -760,6 +897,29 @@ function fwp_hero_meta_box_callback($post) {
     </p>
     <p class="description">
         <?php _e('Vink aan om de globale hero sectie te verbergen voor alleen deze pagina/post.', 'fectionwp-pro'); ?>
+    </p>
+
+    <hr />
+
+    <p>
+        <label for="fwp_hero_variant"><strong><?php _e('Hero type (override)', 'fectionwp-pro'); ?></strong></label>
+        <select name="fwp_hero_variant" id="fwp_hero_variant" class="widefat">
+            <option value="" <?php selected($hero_variant, ''); ?>><?php _e('Gebruik globale instelling', 'fectionwp-pro'); ?></option>
+            <option value="standard" <?php selected($hero_variant, 'standard'); ?>><?php _e('Standaard', 'fectionwp-pro'); ?></option>
+            <option value="carousel" <?php selected($hero_variant, 'carousel'); ?>><?php _e('Carrousel (Bootstrap)', 'fectionwp-pro'); ?></option>
+            <option value="disabled" <?php selected($hero_variant, 'disabled'); ?>><?php _e('Uit (verberg hero)', 'fectionwp-pro'); ?></option>
+        </select>
+    </p>
+    <p class="description">
+        <?php _e('Laat op “Gebruik globale instelling” om de Customizer-instelling te volgen.', 'fectionwp-pro'); ?>
+    </p>
+
+    <p>
+        <label for="fwp_hero_carousel_slides_json"><strong><?php _e('Carrousel slides (JSON, optioneel)', 'fectionwp-pro'); ?></strong></label>
+        <textarea name="fwp_hero_carousel_slides_json" id="fwp_hero_carousel_slides_json" class="widefat" rows="6" placeholder='[{"image_url":"https://.../slide.jpg","heading":"Titel","text":"Tekst","btn_text":"Boek nu","btn_url":"https://...","btn_style":"primary"}]'><?php echo esc_textarea($carousel_slides_json); ?></textarea>
+    </p>
+    <p class="description">
+        <?php _e('Alleen gebruikt als de hero (globaal of override) op Carrousel staat. Als leeg of ongeldig, worden de globale Customizer slides gebruikt.', 'fectionwp-pro'); ?>
     </p>
     <?php
 }
@@ -789,6 +949,31 @@ function fwp_save_hero_meta_box($post_id) {
     } else {
         delete_post_meta($post_id, '_fwp_disable_hero');
     }
+
+    // Hero variant override
+    $allowed_variants = array('', 'standard', 'carousel', 'disabled');
+    $variant = isset($_POST['fwp_hero_variant']) ? sanitize_text_field(wp_unslash($_POST['fwp_hero_variant'])) : '';
+    if (!in_array($variant, $allowed_variants, true)) {
+        $variant = '';
+    }
+    if ($variant === '') {
+        delete_post_meta($post_id, '_fwp_hero_variant');
+    } else {
+        update_post_meta($post_id, '_fwp_hero_variant', $variant);
+    }
+
+    // Optional per-page carousel slides JSON
+    $slides_json = isset($_POST['fwp_hero_carousel_slides_json']) ? (string) wp_unslash($_POST['fwp_hero_carousel_slides_json']) : '';
+    $slides_json = trim($slides_json);
+    if ($slides_json === '') {
+        delete_post_meta($post_id, '_fwp_hero_carousel_slides_json');
+    } else {
+        // Prevent accidental huge payloads
+        if (strlen($slides_json) > 20000) {
+            $slides_json = substr($slides_json, 0, 20000);
+        }
+        update_post_meta($post_id, '_fwp_hero_carousel_slides_json', $slides_json);
+    }
 }
 add_action('save_post', 'fwp_save_hero_meta_box');
 
@@ -797,6 +982,83 @@ add_action('save_post', 'fwp_save_hero_meta_box');
  */
 function fwp_render_hero() {
     if (!fwp_should_display_hero()) {
+        return;
+    }
+
+    $post_id = (int) get_queried_object_id();
+    $hero_variant = $post_id ? (string) get_post_meta($post_id, '_fwp_hero_variant', true) : '';
+    if ($hero_variant === 'disabled') {
+        return;
+    }
+
+    $hero_type = (string) get_theme_mod('fwp_hero_type', 'standard');
+    if (in_array($hero_variant, array('standard', 'carousel'), true)) {
+        $hero_type = $hero_variant;
+    }
+
+    // Carousel hero (Bootstrap 5.3)
+    if ($hero_type === 'carousel') {
+        $slides = fwp_get_effective_hero_carousel_slides($post_id);
+        $slides = array_values(array_filter($slides, function ($slide) {
+            return is_array($slide) && (!empty($slide['image_url']) || !empty($slide['heading']) || !empty($slide['text']));
+        }));
+
+        if (empty($slides)) {
+            return;
+        }
+
+        $container = (string) get_theme_mod('fwp_hero_container', 'container');
+        $carousel_id = 'fwp-hero';
+        ?>
+        <div id="<?php echo esc_attr($carousel_id); ?>" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <?php foreach ($slides as $index => $_slide) : ?>
+                    <button type="button" data-bs-target="#<?php echo esc_attr($carousel_id); ?>" data-bs-slide-to="<?php echo esc_attr((string) $index); ?>" <?php echo $index === 0 ? 'class="active" aria-current="true"' : ''; ?> aria-label="<?php echo esc_attr(sprintf(__('Slide %d', 'fectionwp-pro'), $index + 1)); ?>"></button>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="carousel-inner">
+                <?php foreach ($slides as $index => $slide) :
+                    $image_url = isset($slide['image_url']) ? (string) $slide['image_url'] : '';
+                    $heading = isset($slide['heading']) ? (string) $slide['heading'] : '';
+                    $text = isset($slide['text']) ? (string) $slide['text'] : '';
+                    $btn_text = isset($slide['btn_text']) ? (string) $slide['btn_text'] : '';
+                    $btn_url = isset($slide['btn_url']) ? (string) $slide['btn_url'] : '';
+                    $btn_style = isset($slide['btn_style']) ? (string) $slide['btn_style'] : 'primary';
+                    ?>
+                    <div class="carousel-item<?php echo $index === 0 ? ' active' : ''; ?>">
+                        <?php if ($image_url) : ?>
+                            <img src="<?php echo esc_url($image_url); ?>" class="d-block w-100" alt="<?php echo esc_attr(wp_strip_all_tags($heading)); ?>">
+                        <?php endif; ?>
+
+                        <div class="carousel-caption">
+                            <div class="<?php echo esc_attr($container); ?>">
+                                <?php if ($heading) : ?>
+                                    <h1><?php echo wp_kses_post($heading); ?></h1>
+                                <?php endif; ?>
+                                <?php if ($text) : ?>
+                                    <p><?php echo wp_kses_post($text); ?></p>
+                                <?php endif; ?>
+                                <?php if ($btn_text && $btn_url) : ?>
+                                    <p><a class="btn btn-lg btn-<?php echo esc_attr($btn_style); ?>" href="<?php echo esc_url($btn_url); ?>"><?php echo esc_html($btn_text); ?></a></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#<?php echo esc_attr($carousel_id); ?>" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden"><?php esc_html_e('Previous', 'fectionwp-pro'); ?></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#<?php echo esc_attr($carousel_id); ?>" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden"><?php esc_html_e('Next', 'fectionwp-pro'); ?></span>
+            </button>
+        </div>
+        <?php
+
         return;
     }
     
