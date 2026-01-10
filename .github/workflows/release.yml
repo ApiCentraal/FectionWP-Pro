@@ -65,11 +65,13 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           PACKAGE_NAME="fectionwp-pro-${VERSION}"
+          THEME_SLUG="fectionwp-pro"
           
           echo "Creating distribution package: ${PACKAGE_NAME}.zip"
           
           # Create temporary directory for theme files
-          mkdir -p /tmp/${PACKAGE_NAME}
+          rm -rf /tmp/${THEME_SLUG} /tmp/${PACKAGE_NAME} /tmp/dist-fwp
+          mkdir -p /tmp/dist-fwp/${THEME_SLUG}
           
           # Copy theme files, excluding development files
           rsync -av --progress \
@@ -83,6 +85,7 @@ jobs:
             --exclude='composer.lock' \
             --exclude='package.json' \
             --exclude='package-lock.json' \
+            --exclude='*.zip' \
             --exclude='*.md' \
             --exclude='test-*.php' \
             --exclude='.DS_Store' \
@@ -91,22 +94,77 @@ jobs:
             --exclude='docker-compose.yml' \
             --exclude='*.code-workspace' \
             --exclude='releases' \
-            ./ /tmp/${PACKAGE_NAME}/
+            ./ /tmp/dist-fwp/${THEME_SLUG}/
           
           # Include README.md specifically (it was excluded with *.md)
           if [ -f README.md ]; then
-            cp README.md /tmp/${PACKAGE_NAME}/
+            cp README.md /tmp/dist-fwp/${THEME_SLUG}/
           fi
           
-          # Create zip file in releases directory
-          cd /tmp
-          zip -r ${PACKAGE_NAME}.zip ${PACKAGE_NAME}
+          # Create zip file (zip contains a stable folder: fectionwp-pro/)
+          cd /tmp/dist-fwp
+          zip -r ${PACKAGE_NAME}.zip ${THEME_SLUG}
           
           # Move to workspace
           mv ${PACKAGE_NAME}.zip ${GITHUB_WORKSPACE}/
           
           echo "Package created: ${PACKAGE_NAME}.zip"
           ls -lh ${GITHUB_WORKSPACE}/${PACKAGE_NAME}.zip
+
+      - name: Create child theme package
+        run: |
+          CHILD_THEME_DIR="child-theme/fectionwp-pro-tffp"
+          CHILD_SLUG="fectionwp-pro-tffp"
+
+          if [ ! -f "${CHILD_THEME_DIR}/style.css" ]; then
+            echo "::warning::Child theme not found at ${CHILD_THEME_DIR}; skipping child theme zip"
+            exit 0
+          fi
+
+          CHILD_VERSION=$(grep -m1 -oP 'Version:\s*\K[0-9]+\.[0-9]+\.[0-9]+' "${CHILD_THEME_DIR}/style.css" || true)
+          if [ -z "${CHILD_VERSION}" ]; then
+            echo "::warning::Could not detect child theme version from ${CHILD_THEME_DIR}/style.css; using 'unknown'"
+            CHILD_VERSION="unknown"
+          fi
+
+          CHILD_PACKAGE_NAME="${CHILD_SLUG}-${CHILD_VERSION}"
+          echo "Creating child theme package: ${CHILD_PACKAGE_NAME}.zip"
+
+          rm -rf /tmp/dist-fwp-child
+          mkdir -p /tmp/dist-fwp-child/${CHILD_SLUG}
+
+          rsync -av --progress \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='*.zip' \
+            --exclude='*.md' \
+            --exclude='test-*.php' \
+            --exclude='.DS_Store' \
+            --exclude='.vscode' \
+            --exclude='.idea' \
+            --exclude='docker-compose.yml' \
+            --exclude='*.code-workspace' \
+            ${CHILD_THEME_DIR}/ /tmp/dist-fwp-child/${CHILD_SLUG}/
+
+          # Include README.md specifically (it was excluded with *.md)
+          if [ -f "${CHILD_THEME_DIR}/README.md" ]; then
+            cp "${CHILD_THEME_DIR}/README.md" /tmp/dist-fwp-child/${CHILD_SLUG}/
+          fi
+
+          cd /tmp/dist-fwp-child
+          zip -r ${CHILD_PACKAGE_NAME}.zip ${CHILD_SLUG}
+
+          mv ${CHILD_PACKAGE_NAME}.zip ${GITHUB_WORKSPACE}/
+          echo "Child package created: ${CHILD_PACKAGE_NAME}.zip"
+          ls -lh ${GITHUB_WORKSPACE}/${CHILD_PACKAGE_NAME}.zip
 
       - name: Verify package contents
         run: |
@@ -122,7 +180,7 @@ jobs:
           
           echo ""
           echo "Checking for required files..."
-          unzip -l ${PACKAGE_NAME} | grep -E "(style.css|functions.php|screenshot.png)" || echo "Warning: Some required files may be missing"
+          unzip -l ${PACKAGE_NAME} | grep -E "(fectionwp-pro/style.css|fectionwp-pro/functions.php|fectionwp-pro/screenshot.png)" || echo "Warning: Some required files may be missing"
           
           echo ""
           echo "Checking that excluded files are not present..."
@@ -133,6 +191,29 @@ jobs:
             echo "✓ No excluded files found in package"
           fi
 
+          echo ""
+          echo "Verifying child theme package (if present)..."
+          CHILD_ZIP=$(ls -1 fectionwp-pro-tffp-*.zip 2>/dev/null | head -n 1 || true)
+          if [ -z "${CHILD_ZIP}" ]; then
+            echo "No child theme zip found in workspace; skipping child verification"
+            exit 0
+          fi
+
+          unzip -l "${CHILD_ZIP}" | head -50
+
+          echo ""
+          echo "Checking child required files..."
+          unzip -l "${CHILD_ZIP}" | grep -E "(fectionwp-pro-tffp/style.css|fectionwp-pro-tffp/functions.php)" || echo "Warning: Some child required files may be missing"
+
+          echo ""
+          echo "Checking that excluded files are not present in child zip..."
+          if unzip -l "${CHILD_ZIP}" | grep -E "(.git|node_modules|composer.json)"; then
+            echo "::error::Child package contains excluded files!"
+            exit 1
+          else
+            echo "✓ No excluded files found in child package"
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -141,6 +222,7 @@ jobs:
           body_path: ${{ steps.changelog.outputs.changelog_file }}
           files: |
             fectionwp-pro-${{ steps.get_version.outputs.version }}.zip
+            fectionwp-pro-tffp-*.zip
           draft: false
           prerelease: false
         env:

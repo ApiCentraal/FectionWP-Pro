@@ -73,17 +73,24 @@ Once the tag is pushed, GitHub Actions will automatically:
 
 1. **Build the Distribution Package**
    - Create a clean zip file named `fectionwp-pro-{version}.zip`
+   - The zip always contains a stable theme folder: `fectionwp-pro/` (important for child themes)
    - Exclude development files (.git, .github, node_modules, etc.)
    - Include only production-ready theme files
 
-2. **Create GitHub Release**
+2. **(Optional/Recommended) Build Child Theme Package**
+   - Create a zip file named `fectionwp-pro-tffp-{child-version}.zip`
+   - The zip always contains a stable theme folder: `fectionwp-pro-tffp/`
+   - Child version is read from `child-theme/fectionwp-pro-tffp/style.css`
+
+3. **Create GitHub Release**
    - Generate release notes from CHANGELOG.md
-   - Attach the distribution zip file
+   - Attach the distribution zip file (and child theme zip if present)
    - Mark as latest release
 
-3. **Upload Release Asset**
-   - The zip file will be available for download
-   - Named: `fectionwp-pro-1.1.5.zip`
+4. **Upload Release Assets**
+   - The zip files will be available for download
+   - Parent: `fectionwp-pro-1.1.5.zip`
+   - Child (if present): `fectionwp-pro-tffp-1.1.6.zip`
 
 ### Step 3: Verify Release
 
@@ -97,6 +104,12 @@ Once the tag is pushed, GitHub Actions will automatically:
    # Extract and verify contents
    unzip fectionwp-pro-1.1.5.zip
    ls -la fectionwp-pro/
+   ```
+
+   If you also ship the child theme:
+   ```bash
+   unzip fectionwp-pro-tffp-1.1.6.zip
+   ls -la fectionwp-pro-tffp/
    ```
 
 ## Release Workflow Details

@@ -67,7 +67,7 @@ wget https://github.com/ApiCentraal/FectionWP-Pro/releases/download/v1.1.5/fecti
 
 # Extract and verify
 unzip fectionwp-pro-1.1.5.zip
-cd fectionwp-pro-1.1.5
+cd fectionwp-pro
 
 # Check version in style.css
 grep "Version:" style.css
@@ -78,6 +78,15 @@ ls -la | grep -E "(functions.php|style.css|screenshot.png)"
 
 # Verify excluded files are NOT present
 ls -la | grep -E "(node_modules|.git|composer.json)" && echo "ERROR: Excluded files found!" || echo "✓ Clean package"
+
+### (Optioneel) Child theme asset
+Als de release ook de child theme bevat, download en test dan ook:
+```bash
+wget https://github.com/ApiCentraal/FectionWP-Pro/releases/download/v1.1.5/fectionwp-pro-tffp-1.1.6.zip
+unzip fectionwp-pro-tffp-1.1.6.zip
+ls -la fectionwp-pro-tffp/ | head
+grep "^Template:" fectionwp-pro-tffp/style.css
+```
 ```
 
 ## Expected Release Content
