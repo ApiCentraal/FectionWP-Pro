@@ -21,17 +21,34 @@ All prerequisites for the release are in place:
 - ✅ GitHub Actions workflow configured at `.github/workflows/release.yml`
 - ✅ Git tag `v1.1.5` created locally
 
-## 🚀 Tag Push Status
+## 🚀 Tag Push Status - MANUAL ACTION REQUIRED
 
-Git has been configured to automatically push tags with commits (`push.followTags = true`).
+⚠️ **Repository Protection Rules Detected**
 
-The tag `v1.1.5` will be pushed to GitHub origin automatically with the next commit.
+The repository has branch protection rules that restrict tag creation. The automated push attempt resulted in:
 
-**Alternative manual push:** If needed, you can also push the tag manually:
+```
+remote: error: GH013: Repository rule violations found for refs/tags/v1.1.5.
+remote: - Cannot create ref due to creations being restricted.
+remote: ! [remote rejected] v1.1.5 -> v1.1.5 (push declined due to repository rule violations)
+```
+
+**Required Action:**
+
+A user with appropriate repository permissions must push the tag manually:
 
 ```bash
+git tag -a v1.1.5 -m "Release version 1.1.5 - Page builder integrations"
 git push origin v1.1.5
 ```
+
+**Who can push tags:**
+
+- Repository administrators
+- Users with "push" or "maintain" role
+- Users explicitly granted tag creation permissions in repository rules
+
+**Check repository rules:** https://github.com/ApiCentraal/FectionWP-Pro/rules
 
 ## 🔄 What Happens After Tag Push
 
