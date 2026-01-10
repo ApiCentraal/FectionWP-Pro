@@ -1,16 +1,24 @@
 {
   "name": "apicentraal/fectionwp-pro",
-  "description": "Dev dependencies for FectionWP Pro theme (PHPCS, WPCS, Theme Check)",
+  "description": "Dev dependencies for FectionWP Pro theme (PHPCS, WPCS)",
   "require-dev": {
-    "squizlabs/php_codesniffer": "^4.0",
-    "wp-coding-standards/wpcs": "^2.3",
-    "wp-theme-check/wp-theme-check": "^1.4"
+    "squizlabs/php_codesniffer": "^3.7",
+    "wp-coding-standards/wpcs": "^3.0"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
   "autoload": {
     "psr-4": {
       "FectionWP\\": "inc/"
+    }
+  },
+  "scripts": {
+    "phpcs": "phpcs --standard=WordPress inc/ functions.php --extensions=php",
+    "phpcbf": "phpcbf --standard=WordPress inc/ functions.php --extensions=php"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   }
 }

@@ -39,6 +39,9 @@ require_once get_template_directory() . '/inc/woocommerce.php';
 require_once get_template_directory() . '/inc/jetpack.php';
 require_once get_template_directory() . '/inc/contact-form-7.php';
 
+// Page Builder Integraties (Elementor, Divi, Beaver Builder, etc.)
+require_once get_template_directory() . '/inc/page-builders.php';
+
 // TGM Plugin Activation (aanbevolen plugins)
 require_once get_template_directory() . '/inc/plugin-activation.php';
 

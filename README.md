@@ -38,11 +38,38 @@ Zorg dat deze plugins geïnstalleerd en geactiveerd zijn voor volledige function
 
 ## Hoofdfuncties
 
+- **Page Builder Integratie** — volledige ondersteuning voor Elementor, Divi, Beaver Builder, WPBakery, Oxygen, Brizy, en Thrive Architect
 - Naadloze integratie met FectionWP-Visual-Builder en FectionWP-Blocks
 - Boeking- en afspraakbeheer via FectionWP-Booking
 - Aangepaste thema-onderdelen en block-templates in `template-parts/`
 - WooCommerce styling en compatibiliteit
 - Meertalige ondersteuning via `.pot` in `languages/`
+
+## Page Builder Ondersteuning
+
+FectionWP Pro biedt **out-of-the-box integratie** met alle populaire WordPress page builders:
+
+✅ **Volledig ondersteund:**
+- Elementor (gratis & Pro)
+- Divi Builder
+- Beaver Builder
+- WPBakery Page Builder
+- Oxygen Builder
+- Brizy Builder
+- Thrive Architect
+- Gutenberg (WordPress Block Editor)
+
+**Features:**
+- Automatische kleur- en font-synchronisatie met theme instellingen
+- Bootstrap 5.3 container breedte compatibiliteit (1320px)
+- Full-width template ondersteuning
+- Bootstrap grid integratie optie
+- Admin indicators voor actieve builders
+- CSS compatibiliteit fixes
+
+**Documentatie:** Zie `PAGE_BUILDER_INTEGRATION.md` voor volledige setup en gebruik.
+
+**Divi Conversie:** Bestaande Divi content kan worden geconverteerd met `inc/import-converter.php`.
 
 ## Installatie (kort)
 

@@ -18,3 +18,6 @@ dist/
 # WordPress
 wp-config.php
 wp-content/uploads/
+
+# Test files
+test-*.php
