@@ -1,0 +1,23 @@
+{
+  "name": "fectionwp-pro",
+  "version": "1.1.5",
+  "description": "Premium WordPress theme with Bootstrap 5.3, modular blocks, shortcodes, WooCommerce, Jetpack & CF7 support",
+  "author": "FectionLabs",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://fectionlabs.com/fectionwp-pro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ApiCentraal/FectionWP-Pro.git"
+  },
+  "keywords": [
+    "wordpress",
+    "theme",
+    "bootstrap",
+    "responsive",
+    "woocommerce",
+    "gutenberg"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
