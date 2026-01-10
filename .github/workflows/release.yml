@@ -1,0 +1,160 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          # Extract version from tag (v1.1.5 -> 1.1.5)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "Release version: ${VERSION}"
+
+      - name: Verify version matches package.json
+        run: |
+          PACKAGE_VERSION=$(grep -oP '"version":\s*"\K[^"]+' package.json)
+          TAG_VERSION="${{ steps.get_version.outputs.version }}"
+          echo "Package version: ${PACKAGE_VERSION}"
+          echo "Tag version: ${TAG_VERSION}"
+          if [ "${PACKAGE_VERSION}" != "${TAG_VERSION}" ]; then
+            echo "::warning::Version mismatch: package.json (${PACKAGE_VERSION}) != tag (${TAG_VERSION})"
+          fi
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          
+          # Extract changelog section for this version
+          if [ -f CHANGELOG.md ]; then
+            # Get content between [version] header and next [version] or end of file
+            CHANGELOG=$(sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
+            
+            if [ -z "$CHANGELOG" ]; then
+              echo "No changelog found for version ${VERSION}, using default message"
+              CHANGELOG="Release version ${VERSION}"
+            fi
+            
+            # Write to file for multiline support
+            echo "$CHANGELOG" > /tmp/changelog.txt
+            echo "changelog_file=/tmp/changelog.txt" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGELOG.md not found, using default message"
+            echo "Release version ${VERSION}" > /tmp/changelog.txt
+            echo "changelog_file=/tmp/changelog.txt" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create distribution package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PACKAGE_NAME="fectionwp-pro-${VERSION}"
+          
+          echo "Creating distribution package: ${PACKAGE_NAME}.zip"
+          
+          # Create temporary directory for theme files
+          mkdir -p /tmp/${PACKAGE_NAME}
+          
+          # Copy theme files, excluding development files
+          rsync -av --progress \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='*.md' \
+            --exclude='test-*.php' \
+            --exclude='.DS_Store' \
+            --exclude='.vscode' \
+            --exclude='.idea' \
+            --exclude='docker-compose.yml' \
+            --exclude='*.code-workspace' \
+            --exclude='releases' \
+            ./ /tmp/${PACKAGE_NAME}/
+          
+          # Include README.md specifically (it was excluded with *.md)
+          if [ -f README.md ]; then
+            cp README.md /tmp/${PACKAGE_NAME}/
+          fi
+          
+          # Create zip file in releases directory
+          cd /tmp
+          zip -r ${PACKAGE_NAME}.zip ${PACKAGE_NAME}
+          
+          # Move to workspace
+          mv ${PACKAGE_NAME}.zip ${GITHUB_WORKSPACE}/
+          
+          echo "Package created: ${PACKAGE_NAME}.zip"
+          ls -lh ${GITHUB_WORKSPACE}/${PACKAGE_NAME}.zip
+
+      - name: Verify package contents
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PACKAGE_NAME="fectionwp-pro-${VERSION}.zip"
+          
+          echo "Verifying package contents..."
+          unzip -l ${PACKAGE_NAME} | head -50
+          
+          echo ""
+          echo "Package size:"
+          ls -lh ${PACKAGE_NAME}
+          
+          echo ""
+          echo "Checking for required files..."
+          unzip -l ${PACKAGE_NAME} | grep -E "(style.css|functions.php|screenshot.png)" || echo "Warning: Some required files may be missing"
+          
+          echo ""
+          echo "Checking that excluded files are not present..."
+          if unzip -l ${PACKAGE_NAME} | grep -E "(.git|node_modules|composer.json)"; then
+            echo "::error::Package contains excluded files!"
+            exit 1
+          else
+            echo "✓ No excluded files found in package"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.tag }}
+          name: FectionWP Pro ${{ steps.get_version.outputs.version }}
+          body_path: ${{ steps.changelog.outputs.changelog_file }}
+          files: |
+            fectionwp-pro-${{ steps.get_version.outputs.version }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release summary
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          echo "## Release Created Successfully! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ steps.get_version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** fectionwp-pro-${VERSION}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Download" >> $GITHUB_STEP_SUMMARY
+          echo "The release package is available at:" >> $GITHUB_STEP_SUMMARY
+          echo "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
