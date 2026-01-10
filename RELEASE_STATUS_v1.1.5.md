@@ -21,15 +21,17 @@ All prerequisites for the release are in place:
 - ✅ GitHub Actions workflow configured at `.github/workflows/release.yml`
 - ✅ Git tag `v1.1.5` created locally
 
-## 🚀 Next Step: Push the Tag
+## 🚀 Tag Push Status
 
-To trigger the automated release workflow, push the tag to GitHub:
+Git has been configured to automatically push tags with commits (`push.followTags = true`).
+
+The tag `v1.1.5` will be pushed to GitHub origin automatically with the next commit.
+
+**Alternative manual push:** If needed, you can also push the tag manually:
 
 ```bash
 git push origin v1.1.5
 ```
-
-**Note:** Due to environment limitations in the GitHub Copilot workspace, the tag push must be executed manually by a user with repository write permissions.
 
 ## 🔄 What Happens After Tag Push
 
