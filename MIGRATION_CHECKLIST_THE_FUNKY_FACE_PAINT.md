@@ -14,7 +14,7 @@ Zie ook:
 
 ---
 
-## 0) Repo voortgang (code) — bijgewerkt: 2025-12-29
+## 0) Repo voortgang (code) — bijgewerkt: 2026-01-11
 
 - [x] Child theme scaffold aanwezig: `child-theme/fectionwp-pro-tffp/`
 - [x] TFFP templates aanwezig: `front-page.php` + `page-*.php`
@@ -26,6 +26,11 @@ Zie ook:
 - [x] Typografie via Customizer:
   - child theme: sectie-fonts via CSS vars
   - parent theme: uitgebreide typografie + sitetitle font
+
+- [x] Over-ons pagina template + layout (child theme): `page-over-ons.php` + `template-parts/tffp/over-ons.php`
+- [x] Hero refactor: `hero copy.php` als wrapper → nieuwe `hero-story.php` (blendt met TFFP secties)
+- [x] Per-pagina hero-header (achtergrond + tekst + optionele CTA) via page meta box
+- [x] Header layout update (burger links, logo/titel midden, menu onder titel; utilities rechts wanneer utilitybar uit staat)
 
 
 ## 1) Routes & pagina’s (must-have)

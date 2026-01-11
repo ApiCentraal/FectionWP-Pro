@@ -13,14 +13,9 @@ $suitable_for = array(
   radial-gradient(circle at 80% 70%, var(--bs-secondary-bg-subtle) 0%, transparent 55%),
   var(--bs-body-bg);
 ">
-  <div class="tffp-hero-deco position-absolute top-0 start-0 w-100 h-100">
-    <span class="position-absolute tffp-deco-2 tffp-animate-float text-secondary fw-bold">✦</span>
-    <span class="position-absolute tffp-deco-3 tffp-animate-float text-primary fw-bold">✿</span>
-  </div>
-
   <div class="container position-relative">
     <div class="text-center mb-4 mb-lg-5">
-      <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 mb-3">Face Painting Events</span>
+      <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 mb-3">Face Painting Events</span>
       <h1 class="display-5 fw-bold mb-3">Festivals &amp; Events</h1>
       <p class="lead mb-0">Professionele face painting met maximale uitstraling en snelle doorloop</p>
     </div>
@@ -39,7 +34,7 @@ $suitable_for = array(
               Van subtiele glitter eyes tot opvallende festival designs – alles is mogelijk.
             </p>
 
-            <div class="bg-body-tertiary rounded-3 p-4 mb-4">
+            <div class="bg-body-tertiary p-4 mb-4">
               <h2 class="h4 mb-3">Geschikt voor:</h2>
               <div class="row g-2">
                 <?php foreach ( $suitable_for as $item ) : ?>
@@ -53,7 +48,7 @@ $suitable_for = array(
               </div>
             </div>
 
-            <div class="rounded-3 p-4 border border-secondary-subtle" style="background: linear-gradient(135deg, var(--bs-secondary-bg-subtle), var(--bs-primary-bg-subtle));">
+            <div class="p-4 border border-secondary-subtle" style="background: linear-gradient(135deg, var(--bs-secondary-bg-subtle), var(--bs-primary-bg-subtle));">
               <p class="mb-0"><strong class="text-secondary">Extra mogelijk:</strong> Ook branding, kleurenthema's en logo-integratie zijn mogelijk.</p>
             </div>
           </div>

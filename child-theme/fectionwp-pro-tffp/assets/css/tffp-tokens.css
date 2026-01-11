@@ -32,7 +32,7 @@
 
   --tffp-border: oklch(0.9 0.02 290);
 
-  --tffp-radius: 1rem;
+  --tffp-radius: 0;
   --tffp-font-heading: 'Fredoka', sans-serif;
   --tffp-font-body: 'Inter', sans-serif;
 
@@ -48,9 +48,14 @@
   --bs-link-color: var(--tffp-primary);
   --bs-link-hover-color: color-mix(in oklch, var(--tffp-primary) 80%, black);
 
-  --bs-border-radius: var(--tffp-radius);
-  --bs-border-radius-sm: calc(var(--tffp-radius) * 0.75);
-  --bs-border-radius-lg: calc(var(--tffp-radius) * 1.25);
+  /* Square corners everywhere */
+  --bs-border-radius: 0;
+  --bs-border-radius-sm: 0;
+  --bs-border-radius-lg: 0;
+  --bs-border-radius-xl: 0;
+  --bs-border-radius-xxl: 0;
+  --bs-border-radius-2xl: 0;
+  --bs-border-radius-pill: 0;
 
   --bs-font-sans-serif: var(--tffp-font-body);
 }

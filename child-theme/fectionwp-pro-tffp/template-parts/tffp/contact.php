@@ -23,7 +23,7 @@ if ( $contact_phone_href ) {
 <section class="py-5">
   <div class="container">
     <div class="text-center mb-4">
-      <span class="badge rounded-pill text-bg-primary mb-3">Online Boeken</span>
+      <span class="badge text-bg-primary mb-3">Online Boeken</span>
       <h1 class="mb-3">Boek Je Afspraak</h1>
       <p class="lead mb-0">
         Plan eenvoudig je face painting sessie. Kies je service, selecteer een datum
@@ -53,7 +53,7 @@ if ( $contact_phone_href ) {
 <section class="py-5">
   <div class="container">
     <div class="text-center mb-4">
-      <span class="badge rounded-pill text-bg-secondary mb-3">Contact &amp; Boeken</span>
+      <span class="badge text-bg-secondary mb-3">Contact &amp; Boeken</span>
       <h2 class="h1 mb-3">Neem Contact Op</h2>
       <p class="lead mb-0">
         Klaar om te boeken of een offerte aan te vragen? Neem eenvoudig
@@ -100,7 +100,7 @@ if ( $contact_phone_href ) {
               <?php endif; ?>
             </div>
 
-            <div class="p-3 rounded border bg-light">
+            <div class="p-3 border bg-light">
               <p class="mb-0">
                 <strong>Snel antwoord nodig?</strong> WhatsApp is de snelste manier om contact met ons op te nemen!
               </p>

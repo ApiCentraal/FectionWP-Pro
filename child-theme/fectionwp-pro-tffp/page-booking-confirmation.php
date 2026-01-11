@@ -16,7 +16,7 @@ get_header();
       <div class="card shadow-sm">
         <div class="card-body p-4 p-md-5">
           <div class="d-flex align-items-start gap-3">
-            <div class="flex-shrink-0 d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10" style="width: 3.25rem; height: 3.25rem;">
+            <div class="flex-shrink-0 d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10" style="width: 3.25rem; height: 3.25rem;">
               <i class="bi bi-check2-circle text-success" style="font-size: 1.6rem;"></i>
             </div>
             <div>

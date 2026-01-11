@@ -10,15 +10,9 @@ $benefits = array(
 );
 ?>
 <section class="tffp-hero tffp-page-pad-top py-5 py-lg-6 position-relative overflow-hidden">
-  <div class="tffp-hero-deco position-absolute top-0 start-0 w-100 h-100">
-    <span class="position-absolute tffp-deco-1 tffp-animate-float text-primary fw-bold">✦</span>
-    <span class="position-absolute tffp-deco-2 tffp-animate-float text-secondary fw-bold">★</span>
-    <span class="position-absolute tffp-deco-3 tffp-animate-float text-primary fw-bold">✿</span>
-  </div>
-
   <div class="container position-relative">
     <div class="text-center mb-4 mb-lg-5">
-      <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 mb-3">Schminken Kinderfeestje</span>
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 mb-3">Schminken Kinderfeestje</span>
       <h1 class="display-5 fw-bold mb-3">Kinderfeestjes</h1>
       <p class="lead mb-0">Een kinderfeestje wordt pas écht compleet met professionele gezichtsschmink</p>
     </div>

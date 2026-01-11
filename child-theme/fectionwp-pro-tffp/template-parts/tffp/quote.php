@@ -17,7 +17,7 @@ $bg_class = ( 'light' === $variant ) ? 'bg-light' : 'bg-body-tertiary';
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10">
         <div class="text-center mb-4">
-          <span class="badge rounded-pill text-bg-secondary mb-3"><?php echo esc_html( $badge ); ?></span>
+          <span class="badge text-bg-secondary mb-3"><?php echo esc_html( $badge ); ?></span>
         </div>
 
         <figure class="mb-0">

@@ -6,15 +6,9 @@ defined( 'ABSPATH' ) || exit;
   radial-gradient(circle at 75% 75%, var(--bs-secondary-bg-subtle) 0%, transparent 55%),
   var(--bs-body-bg);
 ">
-  <div class="tffp-hero-deco position-absolute top-0 start-0 w-100 h-100">
-    <span class="position-absolute tffp-deco-1 tffp-animate-float text-primary fw-bold">✦</span>
-    <span class="position-absolute tffp-deco-2 tffp-animate-float text-secondary fw-bold">★</span>
-    <span class="position-absolute tffp-deco-3 tffp-animate-float text-primary fw-bold">✿</span>
-  </div>
-
   <div class="container position-relative">
     <div class="text-center mb-4 mb-lg-5">
-      <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 mb-3">Glitter Face Art</span>
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 mb-3">Glitter Face Art</span>
       <h1 class="display-5 fw-bold mb-3">Glitter &amp; Mini Art</h1>
       <p class="lead mb-0">Subtiele glitter face art en mini designs voor events en feestjes</p>
     </div>
@@ -27,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
               Wil je iets extra's zonder volledige schmink? Dan is onze <strong class="text-primary">Glitter &amp; Mini Art Experience</strong> perfect.
             </p>
 
-            <div class="bg-white bg-opacity-75 rounded-3 p-4 border border-primary-subtle mb-4">
+            <div class="bg-white bg-opacity-75 p-4 border border-primary-subtle mb-4">
               <p class="mb-0">
                 Deze service bestaat uit <strong>glitter eyes</strong>, <strong>face jewels</strong>,
                 <strong>mini face paintings</strong> en <strong>glittertattoos</strong>.
@@ -36,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 
             <p class="mb-4">Ideaal voor events waar snelheid, stijl en fun samenkomen.</p>
 
-            <div class="rounded-3 p-4 border border-primary-subtle" style="background: linear-gradient(90deg, var(--bs-primary-bg-subtle), var(--bs-secondary-bg-subtle));">
+            <div class="p-4 border border-primary-subtle" style="background: linear-gradient(90deg, var(--bs-primary-bg-subtle), var(--bs-secondary-bg-subtle));">
               <p class="mb-0">
                 Deze service is geschikt voor zowel <strong class="text-primary">kinderen</strong> als <strong class="text-secondary">volwassenen</strong>
                 en past perfect bij braderieën, winkelacties en familiedagen.

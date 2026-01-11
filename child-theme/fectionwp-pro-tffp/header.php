@@ -23,6 +23,18 @@ $logo_position = function_exists( 'fwp_get_navbar_logo_position' ) ? fwp_get_nav
 $navbar_show_logo = function_exists( 'fwp_navbar_show_logo' ) ? (bool) fwp_navbar_show_logo() : true;
 $menu_align    = function_exists( 'fwp_get_nav_menu_alignment' ) ? fwp_get_nav_menu_alignment() : 'right';
 
+// TFFP defaults: burger links, logo/titel gecentreerd, menu gecentreerd.
+// Als de gebruiker de Customizer setting niet expliciet opgeslagen heeft,
+// forceren we hier de gewenste defaults zonder de parent theme te wijzigen.
+$theme_mods = get_theme_mods();
+$theme_mods = is_array( $theme_mods ) ? $theme_mods : array();
+if ( ! array_key_exists( 'fwp_navbar_logo_position', $theme_mods ) ) {
+    $logo_position = 'center';
+}
+if ( ! array_key_exists( 'fwp_nav_menu_alignment', $theme_mods ) ) {
+    $menu_align = 'center';
+}
+
 $navbar_bg    = function_exists( 'fwp_get_navbar_bg_color' ) ? trim( (string) fwp_get_navbar_bg_color() ) : '';
 $navbar_link  = function_exists( 'fwp_get_navbar_link_color' ) ? trim( (string) fwp_get_navbar_link_color() ) : '';
 $navbar_hover = function_exists( 'fwp_get_navbar_link_hover_color' ) ? trim( (string) fwp_get_navbar_link_hover_color() ) : '';
@@ -274,7 +286,7 @@ if ( ! $is_tffp_fullwidth ) {
                                     <?php else : ?>
                                         <span class="visually-hidden"><?php esc_html_e( 'Love', 'fectionwp-pro' ); ?></span>
                                     <?php endif; ?>
-                                    <span class="fwp-utilitybar__count badge rounded-pill text-bg-primary<?php echo $utility_love_count ? '' : ' d-none'; ?>"><?php echo esc_html( (string) $utility_love_count ); ?></span>
+                                    <span class="fwp-utilitybar__count badge text-bg-primary<?php echo $utility_love_count ? '' : ' d-none'; ?>"><?php echo esc_html( (string) $utility_love_count ); ?></span>
                                 </button>
                             <?php endif; ?>
 
@@ -318,7 +330,7 @@ if ( ! $is_tffp_fullwidth ) {
                                         <span class="visually-hidden"><?php esc_html_e( 'Winkelwagen', 'fectionwp-pro' ); ?></span>
                                     <?php endif; ?>
                                     <?php if ( $utility_cart_count > 0 ) : ?>
-                                        <span class="fwp-utilitybar__count badge rounded-pill text-bg-primary"><?php echo esc_html( (string) $utility_cart_count ); ?></span>
+                                        <span class="fwp-utilitybar__count badge text-bg-primary"><?php echo esc_html( (string) $utility_cart_count ); ?></span>
                                     <?php endif; ?>
                                 </a>
                             <?php endif; ?>
@@ -337,20 +349,76 @@ if ( ! $is_tffp_fullwidth ) {
     <?php if ( $navbar_type === 'offcanvas' ) : ?>
         <nav class="<?php echo esc_attr( implode( ' ', array_filter( $navbar_classes ) ) ); ?><?php echo ( $navbar_sticky && ! ( $topbar_enabled && $topbar_content ) ) ? ' sticky-top' : ''; ?>" aria-label="<?php esc_attr_e( 'Hoofdnavigatie', 'fectionwp-pro' ); ?>"<?php echo $navbar_style_attr ? ' style="' . esc_attr( $navbar_style_attr ) . '"' : ''; ?>>
             <div class="<?php echo esc_attr( $container ); ?>">
-                <?php if ( $navbar_show_logo ) : ?>
-                    <div class="d-flex align-items-center<?php echo ( 'center' === $logo_position ) ? ' mx-lg-auto' : ''; ?>">
-                        <?php fwp_the_custom_logo(); ?>
-                    </div>
-                <?php endif; ?>
+                <div class="d-flex align-items-center py-2 position-relative">
+                    <button class="navbar-toggler border-0" type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#navbarOffcanvas"
+                            aria-controls="navbarOffcanvas"
+                            aria-expanded="false"
+                            aria-label="<?php esc_attr_e( 'Menu openen', 'fectionwp-pro' ); ?>">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#navbarOffcanvas"
-                        aria-controls="navbarOffcanvas"
-                        aria-expanded="false"
-                        aria-label="<?php esc_attr_e( 'Menu openen', 'fectionwp-pro' ); ?>">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                    <?php if ( $navbar_show_logo ) : ?>
+                        <?php if ( 'center' === $logo_position ) : ?>
+                            <div class="tffp-navbar__brand position-absolute start-50 top-50 translate-middle text-center">
+                                <?php fwp_the_custom_logo(); ?>
+                            </div>
+                        <?php elseif ( 'right' === $logo_position ) : ?>
+                            <div class="tffp-navbar__brand ms-auto me-3 text-center">
+                                <?php fwp_the_custom_logo(); ?>
+                            </div>
+                        <?php else : ?>
+                            <div class="tffp-navbar__brand ms-2 text-center">
+                                <?php fwp_the_custom_logo(); ?>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <div class="tffp-navbar__utilities<?php echo ( $navbar_show_logo && 'right' === $logo_position ) ? '' : ' ms-auto'; ?> d-flex align-items-center gap-2">
+                        <?php if ( ! $utility_enabled && ( $utility_quick_love || $utility_quick_profile || $utility_quick_search || $utility_quick_cart ) ) : ?>
+                            <?php if ( $utility_quick_love && $utility_love_post_id ) : ?>
+                                <button type="button" class="nav-link px-2 fwp-love-button" data-post-id="<?php echo esc_attr( (string) $utility_love_post_id ); ?>" aria-pressed="false">
+                                    <i class="bi bi-heart" aria-hidden="true"></i>
+                                    <span class="visually-hidden"><?php esc_html_e( 'Love', 'fectionwp-pro' ); ?></span>
+                                    <span class="badge text-bg-primary<?php echo $utility_love_count ? '' : ' d-none'; ?>"><?php echo esc_html( (string) $utility_love_count ); ?></span>
+                                </button>
+                            <?php endif; ?>
+
+                            <?php if ( $utility_quick_profile && $utility_profile_url ) : ?>
+                                <a class="nav-link px-2" href="<?php echo esc_url( $utility_profile_url ); ?>">
+                                    <i class="bi bi-person" aria-hidden="true"></i>
+                                    <span class="visually-hidden"><?php esc_html_e( 'Mijn profiel', 'fectionwp-pro' ); ?></span>
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if ( $utility_quick_search ) : ?>
+                                <div class="position-relative">
+                                    <a href="#" class="nav-link px-2 search-toggle" aria-label="<?php esc_attr_e( 'Zoeken', 'fectionwp-pro' ); ?>">
+                                        <i class="bi bi-search" aria-hidden="true"></i>
+                                    </a>
+                                    <form role="search" method="get" class="header-search-form" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+                                        <label class="visually-hidden" for="fwp-utility-search"><?php esc_html_e( 'Zoeken', 'fectionwp-pro' ); ?></label>
+                                        <div class="input-group input-group-sm">
+                                            <input id="fwp-utility-search" type="search" class="form-control search-field" placeholder="<?php echo esc_attr_x( 'Zoeken…', 'placeholder', 'fectionwp-pro' ); ?>" value="<?php echo get_search_query(); ?>" name="s" />
+                                            <button class="btn btn-primary" type="submit"><?php esc_html_e( 'Zoek', 'fectionwp-pro' ); ?></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ( $utility_quick_cart && $utility_cart_url ) : ?>
+                                <a class="nav-link px-2" href="<?php echo esc_url( $utility_cart_url ); ?>">
+                                    <i class="bi bi-cart" aria-hidden="true"></i>
+                                    <span class="visually-hidden"><?php esc_html_e( 'Winkelwagen', 'fectionwp-pro' ); ?></span>
+                                    <?php if ( $utility_cart_count > 0 ) : ?>
+                                        <span class="badge text-bg-primary"><?php echo esc_html( (string) $utility_cart_count ); ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
                 <div class="offcanvas offcanvas-end" tabindex="-1" id="navbarOffcanvas" aria-labelledby="offcanvasNavbarLabel">
                     <div class="offcanvas-header">
@@ -375,24 +443,76 @@ if ( ! $is_tffp_fullwidth ) {
     <?php else : ?>
         <nav class="<?php echo esc_attr( implode( ' ', array_filter( $navbar_classes ) ) ); ?><?php echo ( $navbar_sticky && ! ( $topbar_enabled && $topbar_content ) ) ? ' sticky-top' : ''; ?>" aria-label="<?php esc_attr_e( 'Hoofdnavigatie', 'fectionwp-pro' ); ?>"<?php echo $navbar_style_attr ? ' style="' . esc_attr( $navbar_style_attr ) . '"' : ''; ?>>
             <div class="<?php echo esc_attr( $container ); ?>">
-                <?php $render_brand_after_collapse = ( $navbar_show_logo && 'right' === $logo_position ); ?>
+                <div class="d-flex align-items-center py-2 position-relative">
+                    <button class="navbar-toggler border-0" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#primaryMenu"
+                            aria-controls="primaryMenu"
+                            aria-expanded="false"
+                            aria-label="<?php esc_attr_e( 'Menu openen', 'fectionwp-pro' ); ?>">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                <?php if ( ! $render_brand_after_collapse ) : ?>
                     <?php if ( $navbar_show_logo ) : ?>
-                        <div class="d-flex align-items-center<?php echo ( 'center' === $logo_position ) ? ' mx-lg-auto' : ''; ?>">
-                            <?php fwp_the_custom_logo(); ?>
-                        </div>
+                        <?php if ( 'center' === $logo_position ) : ?>
+                            <div class="tffp-navbar__brand position-absolute start-50 top-50 translate-middle text-center">
+                                <?php fwp_the_custom_logo(); ?>
+                            </div>
+                        <?php elseif ( 'right' === $logo_position ) : ?>
+                            <div class="tffp-navbar__brand ms-auto me-3 text-center">
+                                <?php fwp_the_custom_logo(); ?>
+                            </div>
+                        <?php else : ?>
+                            <div class="tffp-navbar__brand ms-2 text-center">
+                                <?php fwp_the_custom_logo(); ?>
+                            </div>
+                        <?php endif; ?>
                     <?php endif; ?>
-                <?php endif; ?>
 
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#primaryMenu"
-                        aria-controls="primaryMenu"
-                        aria-expanded="false"
-                        aria-label="<?php esc_attr_e( 'Menu openen', 'fectionwp-pro' ); ?>">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                    <div class="tffp-navbar__utilities<?php echo ( $navbar_show_logo && 'right' === $logo_position ) ? '' : ' ms-auto'; ?> d-flex align-items-center gap-2">
+                        <?php if ( ! $utility_enabled && ( $utility_quick_love || $utility_quick_profile || $utility_quick_search || $utility_quick_cart ) ) : ?>
+                            <?php if ( $utility_quick_love && $utility_love_post_id ) : ?>
+                                <button type="button" class="nav-link px-2 fwp-love-button" data-post-id="<?php echo esc_attr( (string) $utility_love_post_id ); ?>" aria-pressed="false">
+                                    <i class="bi bi-heart" aria-hidden="true"></i>
+                                    <span class="visually-hidden"><?php esc_html_e( 'Love', 'fectionwp-pro' ); ?></span>
+                                    <span class="badge text-bg-primary<?php echo $utility_love_count ? '' : ' d-none'; ?>"><?php echo esc_html( (string) $utility_love_count ); ?></span>
+                                </button>
+                            <?php endif; ?>
+
+                            <?php if ( $utility_quick_profile && $utility_profile_url ) : ?>
+                                <a class="nav-link px-2" href="<?php echo esc_url( $utility_profile_url ); ?>">
+                                    <i class="bi bi-person" aria-hidden="true"></i>
+                                    <span class="visually-hidden"><?php esc_html_e( 'Mijn profiel', 'fectionwp-pro' ); ?></span>
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if ( $utility_quick_search ) : ?>
+                                <div class="position-relative">
+                                    <a href="#" class="nav-link px-2 search-toggle" aria-label="<?php esc_attr_e( 'Zoeken', 'fectionwp-pro' ); ?>">
+                                        <i class="bi bi-search" aria-hidden="true"></i>
+                                    </a>
+                                    <form role="search" method="get" class="header-search-form" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+                                        <label class="visually-hidden" for="fwp-utility-search"><?php esc_html_e( 'Zoeken', 'fectionwp-pro' ); ?></label>
+                                        <div class="input-group input-group-sm">
+                                            <input id="fwp-utility-search" type="search" class="form-control search-field" placeholder="<?php echo esc_attr_x( 'Zoeken…', 'placeholder', 'fectionwp-pro' ); ?>" value="<?php echo get_search_query(); ?>" name="s" />
+                                            <button class="btn btn-primary" type="submit"><?php esc_html_e( 'Zoek', 'fectionwp-pro' ); ?></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ( $utility_quick_cart && $utility_cart_url ) : ?>
+                                <a class="nav-link px-2" href="<?php echo esc_url( $utility_cart_url ); ?>">
+                                    <i class="bi bi-cart" aria-hidden="true"></i>
+                                    <span class="visually-hidden"><?php esc_html_e( 'Winkelwagen', 'fectionwp-pro' ); ?></span>
+                                    <?php if ( $utility_cart_count > 0 ) : ?>
+                                        <span class="badge text-bg-primary"><?php echo esc_html( (string) $utility_cart_count ); ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
                 <div class="collapse navbar-collapse" id="primaryMenu">
                     <?php
@@ -406,12 +526,6 @@ if ( ! $is_tffp_fullwidth ) {
                     ) );
                     ?>
                 </div>
-
-                <?php if ( $render_brand_after_collapse ) : ?>
-                    <div class="d-flex align-items-center ms-lg-auto">
-                        <?php fwp_the_custom_logo(); ?>
-                    </div>
-                <?php endif; ?>
             </div>
         </nav>
     <?php endif; ?>
@@ -434,5 +548,12 @@ if ( ! get_theme_mod( 'fwp_hero_enabled', false ) && is_active_sidebar( 'hero' )
         </div>
     </div>
 <?php endif; ?>
+
+<?php
+// Per-page hero header (child theme). When enabled, parent hero is auto-disabled via filter.
+if ( function_exists( 'tffp_render_page_hero' ) ) {
+    tffp_render_page_hero();
+}
+?>
 
 <main class="<?php echo esc_attr( $main_classes ); ?>" id="main" role="main">

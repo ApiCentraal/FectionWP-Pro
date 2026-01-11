@@ -9,6 +9,15 @@ function tffp_sanitize_checkbox( $value ): bool {
     return (bool) $value;
 }
 
+function tffp_sanitize_hex_color_or_empty( $value ): string {
+    $value = is_string( $value ) ? trim( $value ) : '';
+    if ( '' === $value ) {
+        return '';
+    }
+    $sanitized = sanitize_hex_color( $value );
+    return is_string( $sanitized ) ? $sanitized : '';
+}
+
 function tffp_font_choices(): array {
     return array(
         '' => __( 'Standaard (theme)', 'fectionwp-pro-tffp' ),
@@ -167,11 +176,355 @@ add_filter( 'fwp_render_hero_in_header', function ( $enabled, $context ) {
 
     if ( 'default' === $context ) {
         $disable_parent_hero = (bool) get_theme_mod( 'tffp_disable_parent_hero_in_default_header', false );
-        return $disable_parent_hero ? false : $enabled;
+        if ( $disable_parent_hero ) {
+            return false;
+        }
+
+        // When a per-page TFFP hero header is enabled, prevent the parent hero.
+        if ( is_singular( 'page' ) ) {
+            $post_id = (int) get_queried_object_id();
+            if ( $post_id && function_exists( 'tffp_page_hero_should_render' ) && tffp_page_hero_should_render( $post_id ) ) {
+                return false;
+            }
+        }
+
+        return $enabled;
     }
 
     return $enabled;
 }, 10, 2 );
+
+/**
+ * Per-page hero header (background + text + optional CTA).
+ */
+function tffp_page_hero_meta_keys(): array {
+    return array(
+        '_tffp_page_hero_enabled',
+        '_tffp_page_hero_show_on_front',
+        '_tffp_page_hero_bg_id',
+        '_tffp_page_hero_align',
+        '_tffp_page_hero_overlay',
+        '_tffp_page_hero_badge',
+        '_tffp_page_hero_title',
+        '_tffp_page_hero_text',
+        '_tffp_page_hero_primary_label',
+        '_tffp_page_hero_primary_url',
+        '_tffp_page_hero_secondary_label',
+        '_tffp_page_hero_secondary_url',
+    );
+}
+
+function tffp_page_hero_is_enabled( int $post_id ): bool {
+    return (bool) get_post_meta( $post_id, '_tffp_page_hero_enabled', true );
+}
+
+function tffp_page_hero_show_on_front( int $post_id ): bool {
+    return (bool) get_post_meta( $post_id, '_tffp_page_hero_show_on_front', true );
+}
+
+function tffp_page_hero_should_render( int $post_id ): bool {
+    if ( ! $post_id ) {
+        return false;
+    }
+    if ( ! tffp_page_hero_is_enabled( $post_id ) ) {
+        return false;
+    }
+
+    // By default, avoid conflicts with the dedicated TFFP front-page layout.
+    if ( is_front_page() ) {
+        return tffp_page_hero_show_on_front( $post_id );
+    }
+
+    return true;
+}
+
+function tffp_page_hero_bg_url( int $post_id ): string {
+    $bg_id = (int) get_post_meta( $post_id, '_tffp_page_hero_bg_id', true );
+    if ( $bg_id > 0 ) {
+        $url = wp_get_attachment_image_url( $bg_id, 'full' );
+        if ( is_string( $url ) && '' !== trim( $url ) ) {
+            return $url;
+        }
+    }
+
+    if ( has_post_thumbnail( $post_id ) ) {
+        $url = get_the_post_thumbnail_url( $post_id, 'full' );
+        if ( is_string( $url ) && '' !== trim( $url ) ) {
+            return $url;
+        }
+    }
+
+    return '';
+}
+
+function tffp_page_hero_overlay_value( int $post_id ): float {
+    $raw = get_post_meta( $post_id, '_tffp_page_hero_overlay', true );
+    $pct = is_numeric( $raw ) ? (int) $raw : 45;
+
+    // Clamp: 0–80%.
+    $pct = max( 0, min( 80, $pct ) );
+
+    // Convert to 0–1 alpha.
+    return $pct / 100;
+}
+
+function tffp_render_page_hero(): void {
+    if ( ! is_singular( 'page' ) ) {
+        return;
+    }
+
+    $post_id = (int) get_queried_object_id();
+    if ( ! tffp_page_hero_should_render( $post_id ) ) {
+        return;
+    }
+
+    get_template_part( 'template-parts/tffp/page-hero' );
+}
+
+// Inject background CSS variable per page (no inline background styles).
+add_action( 'wp_enqueue_scripts', function () {
+    if ( ! is_singular( 'page' ) ) {
+        return;
+    }
+
+    $post_id = (int) get_queried_object_id();
+    if ( ! tffp_page_hero_should_render( $post_id ) ) {
+        return;
+    }
+
+    $bg_url = tffp_page_hero_bg_url( $post_id );
+    $overlay = tffp_page_hero_overlay_value( $post_id );
+
+    $handle = wp_style_is( 'tffp-style', 'enqueued' ) ? 'tffp-style' : 'tffp-tokens';
+    if ( ! wp_style_is( $handle, 'enqueued' ) ) {
+        return;
+    }
+
+    $css_parts = array();
+
+    if ( '' !== $bg_url ) {
+        $bg_url = esc_url_raw( $bg_url );
+        $bg_url_css = str_replace( array( '\\', "'" ), array( '\\\\', "\\'" ), $bg_url );
+        $css_parts[] = "--tffp-page-hero-bg:url('" . $bg_url_css . "')";
+    }
+
+    $overlay = max( 0.0, min( 0.8, $overlay ) );
+    $css_parts[] = '--tffp-page-hero-overlay:' . rtrim( rtrim( number_format( $overlay, 2, '.', '' ), '0' ), '.' );
+
+    $css = 'body.page-id-' . $post_id . ' .tffp-page-hero{' . implode( ';', $css_parts ) . ';}';
+
+    wp_add_inline_style( $handle, $css );
+}, 60 );
+
+// Admin: meta box + media picker.
+add_action( 'add_meta_boxes', function () {
+    add_meta_box(
+        'tffp_page_hero_meta',
+        __( 'Hero header (TFFP)', 'fectionwp-pro-tffp' ),
+        function ( WP_Post $post ) {
+            wp_nonce_field( 'tffp_page_hero_meta', 'tffp_page_hero_nonce' );
+
+            $enabled = (bool) get_post_meta( $post->ID, '_tffp_page_hero_enabled', true );
+            $show_on_front = (bool) get_post_meta( $post->ID, '_tffp_page_hero_show_on_front', true );
+            $bg_id = (int) get_post_meta( $post->ID, '_tffp_page_hero_bg_id', true );
+            $align = (string) get_post_meta( $post->ID, '_tffp_page_hero_align', true );
+            if ( '' === $align ) {
+                $align = 'center';
+            }
+            $overlay_raw = get_post_meta( $post->ID, '_tffp_page_hero_overlay', true );
+            $overlay_pct = is_numeric( $overlay_raw ) ? (int) $overlay_raw : 45;
+            $overlay_pct = max( 0, min( 80, $overlay_pct ) );
+
+            $badge = (string) get_post_meta( $post->ID, '_tffp_page_hero_badge', true );
+            $title = (string) get_post_meta( $post->ID, '_tffp_page_hero_title', true );
+            $text  = (string) get_post_meta( $post->ID, '_tffp_page_hero_text', true );
+
+            $primary_label = (string) get_post_meta( $post->ID, '_tffp_page_hero_primary_label', true );
+            $primary_url   = (string) get_post_meta( $post->ID, '_tffp_page_hero_primary_url', true );
+            $secondary_label = (string) get_post_meta( $post->ID, '_tffp_page_hero_secondary_label', true );
+            $secondary_url   = (string) get_post_meta( $post->ID, '_tffp_page_hero_secondary_url', true );
+
+            $preview_html = '';
+            if ( $bg_id > 0 ) {
+                $src = wp_get_attachment_image_url( $bg_id, 'medium' );
+                if ( $src ) {
+                    $preview_html = '<img src="' . esc_url( $src ) . '" alt="" style="max-width:100%;height:auto;display:block;border:1px solid #dcdcde;" />';
+                }
+            }
+
+            ?>
+            <p>
+              <label>
+                <input type="checkbox" name="tffp_page_hero_enabled" value="1" <?php checked( $enabled ); ?> />
+                <?php esc_html_e( 'Activeer hero header op deze pagina', 'fectionwp-pro-tffp' ); ?>
+              </label>
+            </p>
+
+                        <p>
+                            <label>
+                                <input type="checkbox" name="tffp_page_hero_show_on_front" value="1" <?php checked( $show_on_front ); ?> />
+                                <?php esc_html_e( 'Toon ook op de homepage (als dit de voorpagina is)', 'fectionwp-pro-tffp' ); ?>
+                            </label>
+                        </p>
+
+            <p class="description">
+              <?php esc_html_e( 'Tip: als je geen achtergrond kiest, gebruiken we de uitgelichte afbeelding (featured image) van de pagina.', 'fectionwp-pro-tffp' ); ?>
+            </p>
+
+            <p>
+              <input type="hidden" id="tffp_page_hero_bg_id" name="tffp_page_hero_bg_id" value="<?php echo esc_attr( (string) $bg_id ); ?>" />
+              <button type="button" class="button" id="tffp-hero-bg-select"><?php esc_html_e( 'Kies achtergrondafbeelding', 'fectionwp-pro-tffp' ); ?></button>
+              <button type="button" class="button" id="tffp-hero-bg-clear"><?php esc_html_e( 'Verwijderen', 'fectionwp-pro-tffp' ); ?></button>
+            </p>
+
+            <div id="tffp_page_hero_bg_preview" style="margin: 8px 0 16px;">
+              <?php echo $preview_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+            </div>
+
+            <table class="form-table" role="presentation">
+              <tbody>
+                                <tr>
+                                    <th scope="row"><label for="tffp_page_hero_align"><?php esc_html_e( 'Uitlijning', 'fectionwp-pro-tffp' ); ?></label></th>
+                                    <td>
+                                        <select id="tffp_page_hero_align" name="tffp_page_hero_align">
+                                            <option value="center" <?php selected( $align, 'center' ); ?>><?php esc_html_e( 'Gecentreerd', 'fectionwp-pro-tffp' ); ?></option>
+                                            <option value="left" <?php selected( $align, 'left' ); ?>><?php esc_html_e( 'Links', 'fectionwp-pro-tffp' ); ?></option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="tffp_page_hero_overlay"><?php esc_html_e( 'Donkere overlay', 'fectionwp-pro-tffp' ); ?></label></th>
+                                    <td>
+                                        <input
+                                            id="tffp_page_hero_overlay"
+                                            name="tffp_page_hero_overlay"
+                                            type="range"
+                                            min="0"
+                                            max="80"
+                                            step="5"
+                                            value="<?php echo esc_attr( (string) $overlay_pct ); ?>"
+                                            oninput="document.getElementById('tffp_page_hero_overlay_value').textContent=this.value + '%';"
+                                        />
+                                        <strong id="tffp_page_hero_overlay_value"><?php echo esc_html( (string) $overlay_pct . '%' ); ?></strong>
+                                        <p class="description"><?php esc_html_e( 'Handig voor leesbaarheid op drukke foto’s. 0% = geen extra overlay, 80% = heel donker.', 'fectionwp-pro-tffp' ); ?></p>
+                                    </td>
+                                </tr>
+                <tr>
+                  <th scope="row"><label for="tffp_page_hero_badge"><?php esc_html_e( 'Badge (optioneel)', 'fectionwp-pro-tffp' ); ?></label></th>
+                  <td><input class="regular-text" id="tffp_page_hero_badge" name="tffp_page_hero_badge" type="text" value="<?php echo esc_attr( $badge ); ?>" /></td>
+                </tr>
+                <tr>
+                  <th scope="row"><label for="tffp_page_hero_title"><?php esc_html_e( 'Titel (optioneel)', 'fectionwp-pro-tffp' ); ?></label></th>
+                  <td>
+                    <input class="regular-text" id="tffp_page_hero_title" name="tffp_page_hero_title" type="text" value="<?php echo esc_attr( $title ); ?>" />
+                    <p class="description"><?php esc_html_e( 'Leeg laten = paginatitel.', 'fectionwp-pro-tffp' ); ?></p>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row"><label for="tffp_page_hero_text"><?php esc_html_e( 'Tekst (optioneel)', 'fectionwp-pro-tffp' ); ?></label></th>
+                  <td>
+                    <textarea class="large-text" rows="3" id="tffp_page_hero_text" name="tffp_page_hero_text"><?php echo esc_textarea( $text ); ?></textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row"><?php esc_html_e( 'CTA knop 1 (optioneel)', 'fectionwp-pro-tffp' ); ?></th>
+                  <td>
+                    <p><label><?php esc_html_e( 'Label', 'fectionwp-pro-tffp' ); ?> <input class="regular-text" name="tffp_page_hero_primary_label" type="text" value="<?php echo esc_attr( $primary_label ); ?>" /></label></p>
+                    <p><label><?php esc_html_e( 'URL', 'fectionwp-pro-tffp' ); ?> <input class="large-text" name="tffp_page_hero_primary_url" type="url" value="<?php echo esc_attr( $primary_url ); ?>" /></label></p>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row"><?php esc_html_e( 'CTA knop 2 (optioneel)', 'fectionwp-pro-tffp' ); ?></th>
+                  <td>
+                    <p><label><?php esc_html_e( 'Label', 'fectionwp-pro-tffp' ); ?> <input class="regular-text" name="tffp_page_hero_secondary_label" type="text" value="<?php echo esc_attr( $secondary_label ); ?>" /></label></p>
+                    <p><label><?php esc_html_e( 'URL', 'fectionwp-pro-tffp' ); ?> <input class="large-text" name="tffp_page_hero_secondary_url" type="url" value="<?php echo esc_attr( $secondary_url ); ?>" /></label></p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <?php
+        },
+        'page',
+        'side',
+        'high'
+    );
+} );
+
+add_action( 'save_post_page', function ( int $post_id ) {
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        return;
+    }
+    if ( wp_is_post_revision( $post_id ) ) {
+        return;
+    }
+    if ( ! current_user_can( 'edit_page', $post_id ) ) {
+        return;
+    }
+    if ( ! isset( $_POST['tffp_page_hero_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( (string) $_POST['tffp_page_hero_nonce'] ), 'tffp_page_hero_meta' ) ) {
+        return;
+    }
+
+    $enabled = isset( $_POST['tffp_page_hero_enabled'] ) ? 1 : 0;
+    update_post_meta( $post_id, '_tffp_page_hero_enabled', $enabled );
+
+    $show_on_front = isset( $_POST['tffp_page_hero_show_on_front'] ) ? 1 : 0;
+    update_post_meta( $post_id, '_tffp_page_hero_show_on_front', $show_on_front );
+
+    $bg_id = isset( $_POST['tffp_page_hero_bg_id'] ) ? absint( $_POST['tffp_page_hero_bg_id'] ) : 0;
+    if ( $bg_id > 0 ) {
+        update_post_meta( $post_id, '_tffp_page_hero_bg_id', $bg_id );
+    } else {
+        delete_post_meta( $post_id, '_tffp_page_hero_bg_id' );
+    }
+
+    $align = isset( $_POST['tffp_page_hero_align'] ) ? sanitize_text_field( (string) $_POST['tffp_page_hero_align'] ) : 'center';
+    if ( ! in_array( $align, array( 'center', 'left' ), true ) ) {
+        $align = 'center';
+    }
+    update_post_meta( $post_id, '_tffp_page_hero_align', $align );
+
+    $overlay = isset( $_POST['tffp_page_hero_overlay'] ) ? (int) $_POST['tffp_page_hero_overlay'] : 45;
+    $overlay = max( 0, min( 80, $overlay ) );
+    update_post_meta( $post_id, '_tffp_page_hero_overlay', $overlay );
+
+    $badge = isset( $_POST['tffp_page_hero_badge'] ) ? sanitize_text_field( (string) $_POST['tffp_page_hero_badge'] ) : '';
+    $title = isset( $_POST['tffp_page_hero_title'] ) ? sanitize_text_field( (string) $_POST['tffp_page_hero_title'] ) : '';
+    $text  = isset( $_POST['tffp_page_hero_text'] ) ? sanitize_textarea_field( (string) $_POST['tffp_page_hero_text'] ) : '';
+
+    update_post_meta( $post_id, '_tffp_page_hero_badge', $badge );
+    update_post_meta( $post_id, '_tffp_page_hero_title', $title );
+    update_post_meta( $post_id, '_tffp_page_hero_text', $text );
+
+    $primary_label = isset( $_POST['tffp_page_hero_primary_label'] ) ? sanitize_text_field( (string) $_POST['tffp_page_hero_primary_label'] ) : '';
+    $primary_url   = isset( $_POST['tffp_page_hero_primary_url'] ) ? esc_url_raw( (string) $_POST['tffp_page_hero_primary_url'] ) : '';
+
+    $secondary_label = isset( $_POST['tffp_page_hero_secondary_label'] ) ? sanitize_text_field( (string) $_POST['tffp_page_hero_secondary_label'] ) : '';
+    $secondary_url   = isset( $_POST['tffp_page_hero_secondary_url'] ) ? esc_url_raw( (string) $_POST['tffp_page_hero_secondary_url'] ) : '';
+
+    update_post_meta( $post_id, '_tffp_page_hero_primary_label', $primary_label );
+    update_post_meta( $post_id, '_tffp_page_hero_primary_url', $primary_url );
+    update_post_meta( $post_id, '_tffp_page_hero_secondary_label', $secondary_label );
+    update_post_meta( $post_id, '_tffp_page_hero_secondary_url', $secondary_url );
+}, 10 );
+
+add_action( 'admin_enqueue_scripts', function ( string $hook ) {
+    if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
+        return;
+    }
+
+    $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+    if ( ! $screen || 'page' !== $screen->post_type ) {
+        return;
+    }
+
+    wp_enqueue_media();
+
+    $path = get_stylesheet_directory() . '/assets/js/tffp-page-hero-meta.js';
+    $uri  = get_stylesheet_directory_uri() . '/assets/js/tffp-page-hero-meta.js';
+    if ( file_exists( $path ) ) {
+        wp_enqueue_script( 'tffp-page-hero-meta', $uri, array( 'jquery' ), filemtime( $path ), true );
+    }
+} );
 
 /**
  * Ensure the custom page templates are selectable in wp-admin.
@@ -188,6 +541,7 @@ function tffp_page_templates_map(): array {
         'page-festivals.php'     => __( 'Festivals (TFFP)', 'fectionwp-pro-tffp' ),
         'page-glitter.php'       => __( 'Glitter (TFFP)', 'fectionwp-pro-tffp' ),
         'page-cadeaubon.php'     => __( 'Cadeaubon (TFFP)', 'fectionwp-pro-tffp' ),
+        'page-over-ons.php'      => __( 'Over ons (TFFP)', 'fectionwp-pro-tffp' ),
     );
 }
 
@@ -205,6 +559,53 @@ add_filter( 'theme_page_templates', function ( $templates, $theme, $post, $post_
 
     return $templates;
 }, 20, 4 );
+
+/**
+ * Auto-add "Over ons" menu item to the primary nav (non-invasive).
+ *
+ * Only adds the item when:
+ * - a page with slug "over-ons" exists
+ * - the primary menu items do not already contain that URL
+ *
+ * Disable via:
+ * add_filter('tffp_auto_add_over_ons_menu_item', '__return_false');
+ */
+add_filter( 'wp_nav_menu_items', function ( $items, $args ) {
+    if ( ! is_object( $args ) || empty( $args->theme_location ) || 'primary' !== $args->theme_location ) {
+        return $items;
+    }
+
+    $enabled = (bool) apply_filters( 'tffp_auto_add_over_ons_menu_item', true, $args );
+    if ( ! $enabled ) {
+        return $items;
+    }
+
+    $page = get_page_by_path( 'over-ons' );
+    if ( ! $page instanceof WP_Post ) {
+        return $items;
+    }
+
+    $url = get_permalink( $page );
+    if ( ! $url ) {
+        return $items;
+    }
+
+    // Prevent duplicates.
+    if ( str_contains( (string) $items, $url ) || str_contains( (string) $items, '/over-ons/' ) ) {
+        return $items;
+    }
+
+    $is_active = is_page( $page->ID );
+    $link_class = 'nav-link' . ( $is_active ? ' active' : '' );
+    $aria_current = $is_active ? ' aria-current="page"' : '';
+
+    $items .= '<li class="nav-item menu-item' . ( $is_active ? ' current-menu-item' : '' ) . '">';
+    $items .= '<a class="' . esc_attr( $link_class ) . '" href="' . esc_url( $url ) . '"' . $aria_current . '>';
+    $items .= esc_html__( 'Over ons', 'fectionwp-pro-tffp' );
+    $items .= '</a></li>';
+
+    return $items;
+}, 20, 2 );
 
 // Optional debug: visit /wp-admin/?tffp_debug_templates=1 as admin.
 add_action( 'admin_notices', function () {
@@ -420,6 +821,145 @@ add_action( 'customize_register', function ( $wp_customize ) {
             'choices' => $section_choices,
         ) );
     }
+
+    // Layout (section spacing)
+    $wp_customize->add_section( 'tffp_layout', array(
+        'title'       => __( 'TFFP Layout', 'fectionwp-pro-tffp' ),
+        'description' => __( 'Regelt de verticale ruimte tussen pagina-secties (front-end).', 'fectionwp-pro-tffp' ),
+        'priority'    => 162,
+    ) );
+
+    $wp_customize->add_setting( 'tffp_section_spacing', array(
+        'default'           => 'normal',
+        'sanitize_callback' => function ( $value ) {
+            $value = is_string( $value ) ? $value : '';
+            $allowed = array( 'compact', 'normal', 'spacious' );
+            return in_array( $value, $allowed, true ) ? $value : 'normal';
+        },
+        'transport'         => 'refresh',
+    ) );
+
+    $wp_customize->add_control( 'tffp_section_spacing', array(
+        'type'    => 'select',
+        'section' => 'tffp_layout',
+        'label'   => __( 'Sectie spacing', 'fectionwp-pro-tffp' ),
+        'choices' => array(
+            'compact'  => __( 'Compact', 'fectionwp-pro-tffp' ),
+            'normal'   => __( 'Normaal', 'fectionwp-pro-tffp' ),
+            'spacious' => __( 'Ruim', 'fectionwp-pro-tffp' ),
+        ),
+    ) );
+
+    // Colors
+    $wp_customize->add_section( 'tffp_colors', array(
+        'title'       => __( 'TFFP Kleuren', 'fectionwp-pro-tffp' ),
+        'description' => __( 'Optionele kleur-overschrijvingen voor knoppen en kopteksten. Laat leeg om defaults (tokens) te gebruiken.', 'fectionwp-pro-tffp' ),
+        'priority'    => 163,
+    ) );
+
+    $wp_customize->add_setting( 'tffp_color_primary', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_color_primary', array(
+        'label'   => __( 'Primary', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
+
+    $wp_customize->add_setting( 'tffp_color_secondary', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_color_secondary', array(
+        'label'   => __( 'Secondary', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
+
+    $wp_customize->add_setting( 'tffp_color_accent', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_color_accent', array(
+        'label'       => __( 'Accent (warning)', 'fectionwp-pro-tffp' ),
+        'description' => __( 'Wordt gebruikt voor “accent/warning” kleur in TFFP.', 'fectionwp-pro-tffp' ),
+        'section'     => 'tffp_colors',
+    ) ) );
+
+    $wp_customize->add_setting( 'tffp_color_heading', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_color_heading', array(
+        'label'       => __( 'Kopteksten (global)', 'fectionwp-pro-tffp' ),
+        'description' => __( 'Stelt de standaard heading kleur in (h1-h6) via Bootstrap variable.', 'fectionwp-pro-tffp' ),
+        'section'     => 'tffp_colors',
+    ) ) );
+
+    // Button overrides (Primary)
+    $wp_customize->add_setting( 'tffp_btn_primary_bg', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_btn_primary_bg', array(
+        'label'   => __( 'Knop: Primary achtergrond', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
+
+    $wp_customize->add_setting( 'tffp_btn_primary_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_btn_primary_text', array(
+        'label'   => __( 'Knop: Primary tekst', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
+
+    $wp_customize->add_setting( 'tffp_btn_primary_hover_bg', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_btn_primary_hover_bg', array(
+        'label'   => __( 'Knop: Primary hover achtergrond', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
+
+    // Button overrides (Secondary)
+    $wp_customize->add_setting( 'tffp_btn_secondary_bg', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_btn_secondary_bg', array(
+        'label'   => __( 'Knop: Secondary achtergrond', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
+
+    $wp_customize->add_setting( 'tffp_btn_secondary_text', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_btn_secondary_text', array(
+        'label'   => __( 'Knop: Secondary tekst', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
+
+    $wp_customize->add_setting( 'tffp_btn_secondary_hover_bg', array(
+        'default'           => '',
+        'sanitize_callback' => 'tffp_sanitize_hex_color_or_empty',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'tffp_btn_secondary_hover_bg', array(
+        'label'   => __( 'Knop: Secondary hover achtergrond', 'fectionwp-pro-tffp' ),
+        'section' => 'tffp_colors',
+    ) ) );
 } );
 
 function tffp_get_whatsapp_number(): string {
@@ -549,6 +1089,72 @@ add_action( 'wp_enqueue_scripts', function () {
         $inline_css .= "}\n";
     }
 
+    // Section spacing
+    $spacing = (string) get_theme_mod( 'tffp_section_spacing', 'normal' );
+    $spacing_map = array(
+        'compact'  => '3rem',
+        'normal'   => '4rem',
+        'spacious' => '5rem',
+    );
+    $spacing_value = $spacing_map[ $spacing ] ?? '4rem';
+    $inline_css .= ':root{--tffp-section-padding-y:' . $spacing_value . ';--fwp-section-padding-y:' . $spacing_value . ';}' . "\n";
+
+    // Color overrides (tokens)
+    $color_primary = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_color_primary', '' ) );
+    $color_secondary = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_color_secondary', '' ) );
+    $color_accent = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_color_accent', '' ) );
+    $color_heading = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_color_heading', '' ) );
+
+    $root_vars = '';
+    if ( $color_primary ) {
+        $root_vars .= '--tffp-primary:' . $color_primary . ';';
+    }
+    if ( $color_secondary ) {
+        $root_vars .= '--tffp-secondary:' . $color_secondary . ';';
+    }
+    if ( $color_accent ) {
+        $root_vars .= '--tffp-accent:' . $color_accent . ';';
+    }
+    if ( $color_heading ) {
+        $root_vars .= '--bs-heading-color:' . $color_heading . ';';
+        $root_vars .= '--tffp-page-title-color:' . $color_heading . ';';
+    }
+    if ( $root_vars ) {
+        $inline_css .= ':root{' . $root_vars . '}' . "\n";
+    }
+
+    // Button overrides
+    $btn_primary_bg = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_btn_primary_bg', '' ) );
+    $btn_primary_text = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_btn_primary_text', '' ) );
+    $btn_primary_hover_bg = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_btn_primary_hover_bg', '' ) );
+
+    $btn_secondary_bg = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_btn_secondary_bg', '' ) );
+    $btn_secondary_text = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_btn_secondary_text', '' ) );
+    $btn_secondary_hover_bg = tffp_sanitize_hex_color_or_empty( get_theme_mod( 'tffp_btn_secondary_hover_bg', '' ) );
+
+    $btn_vars = '';
+    if ( $btn_primary_bg ) {
+        $btn_vars .= '--tffp-btn-primary-bg:' . $btn_primary_bg . ';--tffp-btn-primary-border:' . $btn_primary_bg . ';';
+    }
+    if ( $btn_primary_text ) {
+        $btn_vars .= '--tffp-btn-primary-color:' . $btn_primary_text . ';';
+    }
+    if ( $btn_primary_hover_bg ) {
+        $btn_vars .= '--tffp-btn-primary-hover-bg:' . $btn_primary_hover_bg . ';--tffp-btn-primary-hover-border:' . $btn_primary_hover_bg . ';';
+    }
+    if ( $btn_secondary_bg ) {
+        $btn_vars .= '--tffp-btn-secondary-bg:' . $btn_secondary_bg . ';--tffp-btn-secondary-border:' . $btn_secondary_bg . ';';
+    }
+    if ( $btn_secondary_text ) {
+        $btn_vars .= '--tffp-btn-secondary-color:' . $btn_secondary_text . ';';
+    }
+    if ( $btn_secondary_hover_bg ) {
+        $btn_vars .= '--tffp-btn-secondary-hover-bg:' . $btn_secondary_hover_bg . ';--tffp-btn-secondary-hover-border:' . $btn_secondary_hover_bg . ';';
+    }
+    if ( $btn_vars ) {
+        $inline_css .= ':root{' . $btn_vars . '}' . "\n";
+    }
+
     if ( $inline_css ) {
         wp_add_inline_style( $inline_handle, $inline_css );
     }
@@ -633,7 +1239,7 @@ add_action( 'init', function () {
             'title'       => __( 'TFFP: Quote', 'fectionwp-pro-tffp' ),
             'description' => __( 'Een quote/testimonial highlight sectie met Bootstrap markup.', 'fectionwp-pro-tffp' ),
             'categories'  => array( 'fectionwp-tffp' ),
-            'content'     => "<!-- wp:group {\"align\":\"full\",\"className\":\"tffp-quote py-5 bg-light\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull tffp-quote py-5 bg-light\">\n<!-- wp:group {\"className\":\"container\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group container\">\n<!-- wp:group {\"className\":\"row justify-content-center\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group row justify-content-center\">\n<!-- wp:group {\"className\":\"col-12 col-lg-10\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group col-12 col-lg-10\">\n<!-- wp:html -->\n<div class=\"text-center mb-4\">\n  <span class=\"badge rounded-pill text-bg-secondary mb-3\">Quote</span>\n</div>\n\n<figure class=\"mb-0\">\n  <blockquote class=\"blockquote text-center mb-3\">\n    <p class=\"display-6 mb-0\">“Superleuk en professioneel! De kinderen vonden het geweldig en de schmink bleef de hele dag zitten.”</p>\n  </blockquote>\n  <figcaption class=\"blockquote-footer text-center mb-0\">— Een blije ouder</figcaption>\n</figure>\n<!-- /wp:html -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n<!-- /wp:group -->",
+            'content'     => "<!-- wp:group {\"align\":\"full\",\"className\":\"tffp-quote py-5 bg-light\",\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignfull tffp-quote py-5 bg-light\">\n<!-- wp:group {\"className\":\"container\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group container\">\n<!-- wp:group {\"className\":\"row justify-content-center\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group row justify-content-center\">\n<!-- wp:group {\"className\":\"col-12 col-lg-10\",\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group col-12 col-lg-10\">\n<!-- wp:html -->\n<div class=\"text-center mb-4\">\n  <span class=\"badge text-bg-secondary mb-3\">Quote</span>\n</div>\n\n<figure class=\"mb-0\">\n  <blockquote class=\"blockquote text-center mb-3\">\n    <p class=\"display-6 mb-0\">“Superleuk en professioneel! De kinderen vonden het geweldig en de schmink bleef de hele dag zitten.”</p>\n  </blockquote>\n  <figcaption class=\"blockquote-footer text-center mb-0\">— Een blije ouder</figcaption>\n</figure>\n<!-- /wp:html -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n<!-- /wp:group -->",
         )
     );
 

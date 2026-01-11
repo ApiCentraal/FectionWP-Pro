@@ -120,6 +120,25 @@ Conventies:
 
 ---
 
+### B5 — Over-ons pagina + per-page hero + header layout
+**Status (2026-01-11):** ✅ Code klaar (child theme).
+
+**Werk**
+- Voeg een Over-ons pagina toe (template + layout) die consistent is met de rest van TFFP.
+- Refactor “hero copy” zodat deze dezelfde TFFP hero/styling gebruikt.
+- Voeg per-pagina hero-header instellingen toe (achtergrond, tekst, optionele CTA).
+- Pas header/menu layout aan: burger links, logo/titel in het midden, utilities rechts, hoofdmenu gecentreerd onder de titel.
+
+**Acceptance Criteria**
+- Over-ons template is selecteerbaar en rendert zonder warnings.
+- Per pagina kan een hero-header geconfigureerd worden via de editor (meta box) en rendert onder de header.
+- Header voldoet aan het gewenste layout-patroon zonder Customizer regressies.
+
+**Dependencies**
+- B1.
+
+---
+
 ## Milestone C — Booking naar WP (FectionWP-Booking)
 
 ### C1 — Plugin configuratie: services + availability + email

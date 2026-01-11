@@ -25,9 +25,80 @@
   animation: tffp-pulse-gentle 3s ease-in-out infinite;
 }
 
-/* React ContactPage used `pt-24` (~6rem) */
+/* Square corners: override Bootstrap rounded utilities (incl. rounded-circle). */
+.rounded,
+.rounded-0,
+.rounded-1,
+.rounded-2,
+.rounded-3,
+.rounded-4,
+.rounded-5,
+.rounded-circle,
+.rounded-pill,
+.rounded-top,
+.rounded-end,
+.rounded-bottom,
+.rounded-start {
+  border-radius: 0 !important;
+}
+
+/* Parent theme has a few hardcoded radii; keep TFFP square. */
+.navbar-nav .dropdown-menu,
+.entry-thumbnail img,
+.comment-author .avatar,
+.comment-form input[type="text"],
+.comment-form input[type="email"],
+.comment-form input[type="url"],
+.comment-form textarea,
+.page-numbers,
+.search-form .search-field,
+.search-form .search-submit,
+.back-to-top,
+.example-wrapper,
+.example-pricing .pricing-card {
+  border-radius: 0 !important;
+}
+
+/* --- Section spacing (Customizer) --- */
+:root {
+  --tffp-section-padding-y: 4rem;
+}
+
+/* Normalize vertical rhythm across stacked sections (overrides Bootstrap py-*). */
+.tffp-stats,
+.tffp-testimonials,
+.tffp-locations,
+.tffp-newsletter,
+.tffp-quote,
+.tffp-cta,
+.tffp-faq,
+.tffp-features,
+.tffp-pricing {
+  padding-top: var(--tffp-section-padding-y) !important;
+  padding-bottom: var(--tffp-section-padding-y) !important;
+}
+
+/* First-page sections with extra top pad (header overlap). */
 .tffp-page-pad-top {
-  padding-top: 6rem;
+  padding-top: calc(var(--tffp-section-padding-y) + 2rem) !important;
+  padding-bottom: var(--tffp-section-padding-y) !important;
+}
+
+/* --- Buttons (Customizer) --- */
+.btn-primary {
+  --bs-btn-bg: var(--tffp-btn-primary-bg, var(--bs-primary));
+  --bs-btn-border-color: var(--tffp-btn-primary-border, var(--bs-primary));
+  --bs-btn-color: var(--tffp-btn-primary-color, #fff);
+  --bs-btn-hover-bg: var(--tffp-btn-primary-hover-bg, color-mix(in oklch, var(--bs-primary) 88%, black));
+  --bs-btn-hover-border-color: var(--tffp-btn-primary-hover-border, color-mix(in oklch, var(--bs-primary) 88%, black));
+}
+
+.btn-secondary {
+  --bs-btn-bg: var(--tffp-btn-secondary-bg, var(--bs-secondary));
+  --bs-btn-border-color: var(--tffp-btn-secondary-border, var(--bs-secondary));
+  --bs-btn-color: var(--tffp-btn-secondary-color, #fff);
+  --bs-btn-hover-bg: var(--tffp-btn-secondary-hover-bg, color-mix(in oklch, var(--bs-secondary) 88%, black));
+  --bs-btn-hover-border-color: var(--tffp-btn-secondary-hover-border, color-mix(in oklch, var(--bs-secondary) 88%, black));
 }
 
 /* Hero background (ported from React) */
@@ -39,9 +110,88 @@
     oklch(0.995 0.01 90);
 }
 
+/* About page hero (same vibe, less tall than homepage hero). */
+.tffp-about-hero {
+  background:
+    radial-gradient(circle at 18% 45%, oklch(0.85 0.15 340) 0%, transparent 55%),
+    radial-gradient(circle at 82% 28%, oklch(0.85 0.15 290) 0%, transparent 55%),
+    radial-gradient(circle at 42% 82%, oklch(0.90 0.12 45) 0%, transparent 60%),
+    oklch(0.995 0.01 90);
+}
+
+.tffp-about-hero__card {
+  background: color-mix(in oklch, var(--bs-body-bg) 70%, white);
+}
+
+/* Per-page hero header (background set via CSS var injected per page). */
+.tffp-page-hero {
+  --tffp-page-hero-bg: none;
+  --tffp-page-hero-overlay: 0.45;
+  position: relative;
+  background-image:
+    linear-gradient(180deg, rgb(0 0 0 / var(--tffp-page-hero-overlay)), rgb(0 0 0 / calc(var(--tffp-page-hero-overlay) * 0.55))),
+    var(--tffp-page-hero-bg),
+    radial-gradient(circle at 18% 45%, oklch(0.85 0.15 340 / 0.35) 0%, transparent 55%),
+    radial-gradient(circle at 82% 28%, oklch(0.85 0.15 290 / 0.35) 0%, transparent 55%),
+    radial-gradient(circle at 42% 82%, oklch(0.90 0.12 45 / 0.35) 0%, transparent 60%);
+  background-size: cover, cover, auto, auto, auto;
+  background-position: center, center, center, center, center;
+  background-repeat: no-repeat;
+}
+
+/* --- Navbar layout (TFFP) --- */
+.tffp-navbar__brand {
+  max-width: 65%;
+}
+
+@media (max-width: 575.98px) {
+  .tffp-navbar__brand {
+    max-width: 55%;
+  }
+}
+
+.tffp-navbar__brand .navbar-brand {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tffp-navbar__utilities .nav-link {
+  color: var(--bs-navbar-color);
+}
+
+.tffp-navbar__utilities .nav-link:hover,
+.tffp-navbar__utilities .nav-link:focus {
+  color: var(--bs-navbar-hover-color);
+}
+
+.tffp-navbar__utilities button.nav-link {
+  background: transparent;
+  border: 0;
+}
+
+.tffp-team-avatar {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bs-border-color);
+  background: color-mix(in oklch, var(--bs-primary) 10%, white);
+  color: var(--bs-primary);
+}
+
 .tffp-hero-deco {
   opacity: 0.3;
   pointer-events: none;
+}
+
+/* Headings/page headers (Customizer) */
+.tffp-hero :is(h1, h2, h3, h4, h5, h6),
+.tffp-page-pad-top :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--tffp-page-title-color, var(--bs-heading-color, inherit));
 }
 
 /* Section typography overrides (set via Customizer → injected CSS variables) */
@@ -181,7 +331,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border-radius: var(--bs-border-radius-pill);
+  border-radius: var(--bs-border-radius);
   background: var(--bs-primary);
   color: var(--bs-white);
   text-decoration: none;
@@ -246,7 +396,7 @@
 .tffp-gallery-card {
   position: relative;
   aspect-ratio: 1 / 1;
-  border-radius: var(--bs-border-radius-xl);
+  border-radius: var(--bs-border-radius);
   overflow: hidden;
   border: 2px solid var(--bs-border-color);
   box-shadow: var(--bs-box-shadow-sm);
@@ -362,7 +512,7 @@ body.tffp-modal-open {
   top: -2.75rem;
   width: 40px;
   height: 40px;
-  border-radius: 999px;
+  border-radius: var(--bs-border-radius);
   border: 0;
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
@@ -377,7 +527,7 @@ body.tffp-modal-open {
 
 .tffp-gallery-modal__stage {
   position: relative;
-  border-radius: 1rem;
+  border-radius: var(--bs-border-radius);
   overflow: hidden;
   aspect-ratio: 1 / 1;
   box-shadow: var(--bs-box-shadow);
@@ -447,7 +597,7 @@ body.tffp-modal-open {
   transform: translateY(-50%);
   width: 44px;
   height: 44px;
-  border-radius: 999px;
+  border-radius: var(--bs-border-radius);
   border: 0;
   background: rgba(255, 255, 255, 0.18);
   color: #fff;
@@ -480,7 +630,7 @@ body.tffp-modal-open {
 .tffp-gallery-dot {
   width: 8px;
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--bs-border-radius);
   border: 0;
   background: rgba(255, 255, 255, 0.35);
 }

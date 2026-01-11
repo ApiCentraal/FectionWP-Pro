@@ -2,13 +2,6 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <section class="tffp-hero position-relative min-vh-100 d-flex align-items-center overflow-hidden pt-5">
-  <div class="tffp-hero-deco position-absolute top-0 start-0 w-100 h-100">
-    <i class="bi bi-stars position-absolute tffp-deco-1 tffp-animate-float text-primary" style="font-size: 2rem;"></i>
-    <i class="bi bi-balloon-fill position-absolute tffp-deco-2 tffp-animate-float text-warning" style="font-size: 2.5rem;"></i>
-    <i class="bi bi-stars position-absolute tffp-deco-3 tffp-animate-float text-secondary" style="font-size: 1.75rem;"></i>
-    <i class="bi bi-stars position-absolute tffp-deco-4 tffp-animate-float text-warning" style="font-size: 1.5rem;"></i>
-  </div>
-
   <div class="container py-5 position-relative" style="z-index: 1;">
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10 col-xl-9 text-center">

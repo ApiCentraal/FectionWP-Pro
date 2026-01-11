@@ -59,13 +59,11 @@ $render_cards = function ( $items ) {
       <div class="col">
         <div class="card h-100 border-2 shadow-sm">
           <div class="card-body p-4 position-relative overflow-hidden">
-            <div class="position-absolute top-0 end-0" style="width: 6rem; height: 6rem; background: linear-gradient(135deg, color-mix(in oklch, var(--tffp-primary) 15%, transparent) 0%, transparent 100%); border-bottom-left-radius: 9999px; opacity: .6;"></div>
+            <div class="position-absolute top-0 end-0" style="width: 6rem; height: 6rem; background: linear-gradient(135deg, color-mix(in oklch, var(--tffp-primary) 15%, transparent) 0%, transparent 100%); border-bottom-left-radius: 0; opacity: .6;"></div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <div class="d-flex gap-1">
-                <?php for ( $i = 0; $i < (int) $t['rating']; $i++ ) : ?>
-                  <i class="bi bi-star-fill text-warning"></i>
-                <?php endfor; ?>
+              <div class="small fw-semibold text-warning">
+                <?php echo esc_html( (string) $t['rating'] ); ?>/5
               </div>
               <span class="badge text-bg-light border" style="background-color: color-mix(in oklch, var(--tffp-muted) 60%, white);">
                 <?php echo esc_html( $t['occasion'] ); ?>
@@ -98,7 +96,7 @@ $items_volwassenen = array_values( array_filter( $testimonials, fn ( $t ) => 'Vo
 <section class="tffp-testimonials py-5 py-md-6">
   <div class="container py-4">
     <div class="text-center mb-5">
-      <span class="badge rounded-pill px-3 py-2 mb-3" style="background-color: color-mix(in oklch, var(--tffp-accent) 15%, white); color: color-mix(in oklch, var(--tffp-accent) 70%, black); border: 1px solid color-mix(in oklch, var(--tffp-accent) 25%, white);">
+      <span class="badge px-3 py-2 mb-3" style="background-color: color-mix(in oklch, var(--tffp-accent) 15%, white); color: color-mix(in oklch, var(--tffp-accent) 70%, black); border: 1px solid color-mix(in oklch, var(--tffp-accent) 25%, white);">
         Klantbeoordelingen
       </span>
       <h2 class="display-6 fw-bold mb-3">
@@ -141,13 +139,9 @@ $items_volwassenen = array_values( array_filter( $testimonials, fn ( $t ) => 'Vo
     </div>
 
     <div class="text-center mt-5">
-      <div class="d-inline-flex align-items-center gap-2 px-4 py-3 rounded-pill border" style="background: linear-gradient(90deg, color-mix(in oklch, var(--tffp-primary) 12%, white), color-mix(in oklch, var(--tffp-accent) 12%, white), color-mix(in oklch, var(--tffp-secondary) 12%, white));">
-        <span class="d-inline-flex gap-1">
-          <?php for ( $i = 0; $i < 5; $i++ ) : ?>
-            <i class="bi bi-star-fill text-warning"></i>
-          <?php endfor; ?>
-        </span>
-        <span class="fw-semibold">5.0 Gemiddelde Score</span>
+      <div class="d-inline-flex align-items-center gap-2 px-4 py-3 border" style="background: linear-gradient(90deg, color-mix(in oklch, var(--tffp-primary) 12%, white), color-mix(in oklch, var(--tffp-accent) 12%, white), color-mix(in oklch, var(--tffp-secondary) 12%, white));">
+        <span class="fw-semibold text-warning">5/5</span>
+        <span class="fw-semibold">Gemiddelde score</span>
         <span class="text-body-secondary">• 100+ reviews</span>
       </div>
     </div>

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
       <div class="col">
         <div class="card h-100 shadow-sm bg-white bg-opacity-75">
           <div class="card-body text-center p-4">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 bg-primary bg-opacity-10" style="width: 4rem; height: 4rem;">
+            <div class="d-inline-flex align-items-center justify-content-center mb-3 bg-primary bg-opacity-10" style="width: 4rem; height: 4rem;">
               <i class="bi bi-emoji-smile-fill text-primary" style="font-size: 1.75rem;"></i>
             </div>
             <div class="display-6 fw-bold text-primary mb-1">1000+</div>
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
       <div class="col">
         <div class="card h-100 shadow-sm bg-white bg-opacity-75">
           <div class="card-body text-center p-4">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 bg-secondary bg-opacity-10" style="width: 4rem; height: 4rem;">
+            <div class="d-inline-flex align-items-center justify-content-center mb-3 bg-secondary bg-opacity-10" style="width: 4rem; height: 4rem;">
               <i class="bi bi-calendar-event-fill text-secondary" style="font-size: 1.75rem;"></i>
             </div>
             <div class="display-6 fw-bold text-secondary mb-1">500+</div>
@@ -40,10 +40,10 @@ defined( 'ABSPATH' ) || exit;
       <div class="col">
         <div class="card h-100 shadow-sm bg-white bg-opacity-75">
           <div class="card-body text-center p-4">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 bg-warning bg-opacity-10" style="width: 4rem; height: 4rem;">
-              <i class="bi bi-star-fill text-warning" style="font-size: 1.75rem;"></i>
+            <div class="d-inline-flex align-items-center justify-content-center mb-3 bg-warning bg-opacity-10" style="width: 4rem; height: 4rem;">
+              <i class="bi bi-hand-thumbs-up-fill text-warning" style="font-size: 1.75rem;"></i>
             </div>
-            <div class="display-6 fw-bold text-warning mb-1">5★</div>
+            <div class="display-6 fw-bold text-warning mb-1">5/5</div>
             <div class="fw-semibold">Beoordeling</div>
             <div class="small text-body-secondary">Gemiddelde klantwaardering</div>
           </div>
@@ -53,7 +53,7 @@ defined( 'ABSPATH' ) || exit;
       <div class="col">
         <div class="card h-100 shadow-sm bg-white bg-opacity-75">
           <div class="card-body text-center p-4">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 bg-primary bg-opacity-10" style="width: 4rem; height: 4rem;">
+            <div class="d-inline-flex align-items-center justify-content-center mb-3 bg-primary bg-opacity-10" style="width: 4rem; height: 4rem;">
               <i class="bi bi-geo-alt-fill text-primary" style="font-size: 1.75rem;"></i>
             </div>
             <div class="display-6 fw-bold text-primary mb-1">50+</div>

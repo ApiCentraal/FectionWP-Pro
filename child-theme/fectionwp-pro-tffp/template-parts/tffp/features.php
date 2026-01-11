@@ -8,7 +8,7 @@ $items = get_query_var( 'tffp_features_items', array() );
 if ( ! is_array( $items ) || empty( $items ) ) {
     $items = array(
         array(
-            'icon'  => 'bi-stars',
+      'icon'  => 'bi-palette',
             'title' => __( 'Creatieve designs', 'fectionwp-pro-tffp' ),
             'text'  => __( 'Van snelle mini-art tot uitgebreide face paint: altijd passend bij je thema.', 'fectionwp-pro-tffp' ),
         ),
